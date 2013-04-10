@@ -10,5 +10,7 @@ int main ()
 	// This is a comment that I just added for test
 	// purposes.
 
+        //Let's test the merge.
+
 	return 0;
 }
