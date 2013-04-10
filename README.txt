@@ -27,8 +27,9 @@ Important git commands (run from inside "[folder]/Spreadsheet/"
 
 3. Checking status of items in working branch:
 
-   $ git status -s  // Lists items as untracked (??), modified
-                    // (-M), removed (-R), or tracked (-A).
+   $ git status -s  // Provides item status in shorthand.
+     	 	    // M - Modified      ?? - Untracked
+		    // D - Deleted       A  - Tracked
 
           or
 
