@@ -33,3 +33,7 @@ Important git commands (run from inside "[folder]/Spreadsheet/"
           or
 
    $ git status // Provides a more detailed item status report.
+
+4. Checking commit logs:
+
+   $ git log      // Displays commit messages, author, timestamp.
