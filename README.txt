@@ -37,3 +37,19 @@ Important git commands (run from inside "[folder]/Spreadsheet/"
 4. Checking commit logs:
 
    $ git log      // Displays commit messages, author, timestamp.
+   ctrl+z         // To suspend log command.
+
+5. Creating and switching between branches:
+
+   $ git branch   // Displays branches in working directory.
+
+   $ git branch [name]  // Creates branch of specified name.
+
+   $ git checkout [name] // Switches to the named branch.
+
+   $ git merge [name]  // Merges the branch with the master 
+     	       	       // branch.
+
+6. Additional References:
+
+   gitref.org/
