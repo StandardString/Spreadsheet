@@ -1,0 +1,6 @@
+all: server
+
+server:
+	g++ -o server server.cpp -lboost_system -pthread
+client:
+	g++ -o client client.cpp -lboost_system -pthread
