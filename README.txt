@@ -54,3 +54,5 @@ Important git commands (run from inside "[folder]/Spreadsheet/"
 6. Additional References:
 
    gitref.org/
+
+----------------------------------------------------------------
