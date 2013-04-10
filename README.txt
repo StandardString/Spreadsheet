@@ -1,5 +1,5 @@
 ----------------------------------------------------------------
-|			     README.txt                        |
+|			  README.txt                           |
 ----------------------------------------------------------------
 
 Important git commands (run from inside "[folder]/Spreadsheet/"
