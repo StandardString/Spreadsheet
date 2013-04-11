@@ -1,0 +1,5 @@
+
+ - Write ClientModel to handle sockets on client end.
+ - Establish socket connection from C# client to C++ server.
+ - 
+ 
