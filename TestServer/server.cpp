@@ -71,7 +71,7 @@ public:
 
   void start()
   {
-    message_ = make_daytime_string();
+    message_ = "Son of a bitch.";
 
     boost::asio::async_write(socket_, boost::asio::buffer(message_),
         boost::bind(&tcp_connection::handle_write, shared_from_this(),
@@ -117,12 +117,15 @@ private:
   void handle_accept(tcp_connection::pointer new_connection,
       const boost::system::error_code& error)
   {
+    std::cout << "HELLO" << std::endl;
+   
     if (!error)
     {
       new_connection->start();
       start_accept();
     }
-    std::cout<<"Client Connected"<<std::endl;
+    else if (error)
+      throw boost::system::system_error(error);
   }
 
   tcp::acceptor acceptor_;

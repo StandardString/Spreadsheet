@@ -34,11 +34,10 @@ int main(int argc, char* argv[])
 
     tcp::socket socket(io_service);
     boost::system::error_code error = boost::asio::error::host_not_found;
-    while (error && endpoint_iterator != end)
-    {
+   
       socket.close();
       socket.connect(tcp::endpoint(boost::asio::ip::address::from_string("155.98.111.74"), 1984), error);
-    }
+    
     if (error)
       throw boost::system::system_error(error);
 
