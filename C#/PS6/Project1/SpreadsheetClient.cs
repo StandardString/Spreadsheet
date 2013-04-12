@@ -1,39 +1,91 @@
-﻿/* Author:  Bryan K. Smith
+﻿/* Author:  Bryan K. Smith, Owen Krafft, Austin Nester, Dickson Chiu
  * Class:   CS 3505
  * Date:    4/11/2013
  * Version: 1.3.00
  *
  * Revision History:
  * 
- *      - 1.3.00 - Added sockets.
+ *      - 1.3.00 - Added sockets and connection support to the spreadsheet.
  */
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Net.Sockets;
 using CustomNetworking;
 
 namespace SS
 {
-    class SpreadsheetClient
+    public class SpreadsheetClient
     {
-        public StringSocket socket;
+        private StringSocket socket;
         public event Action<String> IncomingLineEvent;
-        public String received;
 
+        /// <summary>
+        /// Creates a not yet connected client.
+        /// </summary>
         public SpreadsheetClient()
         {
             socket = null;
         }
 
+        /// <summary>
+        /// Connect to the server at the given hostname and port, and with
+        /// the given name.
+        /// </summary>
+        /// <param name="hostname"></param>
+        /// <param name="port"></param>
+        /// <param name="name"></param>
         public void Connect(string hostname, int port, String name)
         {
+            if (socket == null)
+            {
+                TcpClient client = new TcpClient(hostname, port);
+                socket = new StringSocket(client.Client, UTF8Encoding.Default);
+                socket.BeginSend(name + "\n", (e, p) => { }, null);
+                socket.BeginReceive(LineReceived, null);
+            }
         }
 
+        /// <summary>
+        /// Send a line of text to the server
+        /// </summary>
+        /// <param name="line"></param>
+        public void SendMessage(String line)
+        {
+            if (socket != null)
+                socket.BeginSend(line + "\n", (e, p) => { }, null);
+        }
+
+        /// <summary>
+        /// Deal with an arriving line of text.
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="e"></param>
+        /// <param name="p"></param>
+        private void LineReceived(String s, Exception e, object p)
+        {
+            if (IncomingLineEvent != null)
+            {
+                if (s != null)
+                    IncomingLineEvent(s);
+            }
+
+            if (socket != null)
+                socket.BeginReceive(LineReceived, null);
+        }
+
+        /// <summary>
+        /// Disconnects the client from the server.
+        /// </summary>
         public void Disconnect()
         {
+            if (socket != null)
+            {
+                socket.Close();
+                socket = null;
+            }
         }
-
     }
 }
