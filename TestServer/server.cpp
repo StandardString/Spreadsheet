@@ -42,7 +42,7 @@ public:
   void start()
   {
 
-    message_ = "MEOW\n";
+    message_ = "MEOW \n";
     boost::asio::async_write(socket_, boost::asio::buffer(message_),
         boost::bind(&tcp_connection::handle_write, shared_from_this(),
           boost::asio::placeholders::error,
@@ -83,13 +83,22 @@ private:
     acceptor_.async_accept(new_connection->socket(),
         boost::bind(&tcp_server::handle_accept, this, new_connection,
           boost::asio::placeholders::error));
+
+ 
   }
 
   void handle_accept(tcp_connection::pointer new_connection,
       const boost::system::error_code& error)
   {
     std::cout << "HELLO" << std::endl;
-   
+    
+    //  tcp::socket& incoming = new_connection->socket();
+    // boost::array<char, 128> buf;
+    // size_t len = incoming.read_some(boost::asio::buffer(buf));
+    //  std::cout.write(buf.data(), len);
+    
+  
+
     if (!error)
     {
       new_connection->start();

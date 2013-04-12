@@ -36,7 +36,7 @@ int main(int argc, char* argv[])
 
     size_t len = socket.read_some(boost::asio::buffer(buf));
 
-    std::cout.write(buf.data(), len);
+     std::cout.write(buf.data(), len);
   
   }
   catch (std::exception& e)
