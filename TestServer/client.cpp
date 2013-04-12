@@ -25,36 +25,19 @@ int main(int argc, char* argv[])
     }
 
     boost::asio::io_service io_service;
-
-    tcp::resolver resolver(io_service);
-    tcp::resolver::query query(argv[1], "daytime");
-    tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
-    tcp::resolver::iterator end;
     
-
     tcp::socket socket(io_service);
-    boost::system::error_code error = boost::asio::error::host_not_found;
-   
-      socket.close();
-      socket.connect(tcp::endpoint(boost::asio::ip::address::from_string("155.98.111.74"), 1984), error);
-    
-    if (error)
-      throw boost::system::system_error(error);
 
-    for (;;)
-    {
-      boost::array<char, 128> buf;
-      boost::system::error_code error;
+    socket.close();
+  
+    socket.connect(tcp::endpoint(tcp::v4(), 1984));//(tcp::endpoint(boost::asio::ip::address::from_string("155.98.111.56"),1984));
 
-      size_t len = socket.read_some(boost::asio::buffer(buf), error);
+    boost::array<char, 128> buf;
 
-      if (error == boost::asio::error::eof)
-        break; // Connection closed cleanly by peer.
-      else if (error)
-        throw boost::system::system_error(error); // Some other error.
+    size_t len = socket.read_some(boost::asio::buffer(buf));
 
-      std::cout.write(buf.data(), len);
-    }
+    std::cout.write(buf.data(), len);
+  
   }
   catch (std::exception& e)
   {

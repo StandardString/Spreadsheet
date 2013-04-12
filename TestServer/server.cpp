@@ -1,32 +1,3 @@
-// #include <iostream>
-// #include <boost/array.hpp>
-// #include <boost/asio.hpp>
-
-// using boost::asio::ip::tcp;
-
-// int main()
-// {
-//   try
-//     {
-//       boost::asio::io_service io_service;
-
-//       tcp::acceptor acceptor(io_service, tcp::endpoint(tcp::v4(), 3333));
-      
-//       tcp::socket socket(io_service);
-//       acceptor.accept(socket);
-      
-
-//       boost::asio::write(socket, boost::asio::buffer("MESSAGE"));
-
-//     }
-//   catch(std::exception& e)
-//     {
-//       std::cerr << e.what() << std::endl;
-//     }
-//   return 0;
-
-// }
-//
 // server.cpp
 // ~~~~~~~~~~
 //
@@ -45,13 +16,12 @@
 #include <boost/asio.hpp>
 
 using boost::asio::ip::tcp;
-
-std::string make_daytime_string()
-{
-  using namespace std; // For time_t, time and ctime;
-  time_t now = time(0);
-  return ctime(&now);
-}
+ std::string make_daytime_string()
+ {
+   using namespace std; // For time_t, time and ctime;
+   time_t now = time(0);
+   return ctime(&now);
+ }
 
 class tcp_connection
   : public boost::enable_shared_from_this<tcp_connection>
@@ -71,8 +41,8 @@ public:
 
   void start()
   {
-    message_ = "Son of a bitch.";
 
+    message_ = "MEOW\n";
     boost::asio::async_write(socket_, boost::asio::buffer(message_),
         boost::bind(&tcp_connection::handle_write, shared_from_this(),
           boost::asio::placeholders::error,
@@ -106,6 +76,7 @@ public:
 private:
   void start_accept()
   {
+    std::cout << "START" << std::endl;
     tcp_connection::pointer new_connection =
       tcp_connection::create(acceptor_.io_service());
 
