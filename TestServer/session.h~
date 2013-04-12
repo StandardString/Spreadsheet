@@ -1,0 +1,22 @@
+
+#ifndef SESSION_H
+#define SESSION_H
+
+#include <iostream>
+#include <vector>
+#include <boost/bind.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/enable_shared_from_this.hpp>
+#include <boost/asio.hpp>
+
+
+class session
+{
+public:
+   std::vector<boost::asio::ip::tcp::socket> users;
+   
+   void broadcast();
+
+};
+
+#endif
