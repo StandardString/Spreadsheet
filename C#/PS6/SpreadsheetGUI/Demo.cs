@@ -28,6 +28,7 @@ namespace SS
         ///  - A boolean that keeps track of whether or not a cell is being edited.
         /// </summary>
         private SS.AbstractSpreadsheet ss;
+        private SS.SpreadsheetClient model;
         private bool beingEdited = false;
 
         /// <summary>
