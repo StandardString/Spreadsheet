@@ -28,8 +28,9 @@ namespace SS
         ///  - A boolean that keeps track of whether or not a cell is being edited.
         /// </summary>
         private SS.AbstractSpreadsheet ss;
-        private SS.SpreadsheetClient model;
+        //private SS.SpreadsheetClient model;
         private bool beingEdited = false;
+        private bool firstEdit = true;
 
         /// <summary>
         /// Constructor for the spreadsheet form.
@@ -44,6 +45,9 @@ namespace SS
             // Registers the event where the selection changes.
             spreadsheetPanel1.SelectionChanged += displaySelection;
             spreadsheetPanel1.SetSelection(2, 3);  // Selects C4 by default.
+
+            //model = new SpreadsheetClient();
+            //model.IncomingLineEvent += MessageReceived;
         }
 
         /// <summary>
@@ -75,6 +79,11 @@ namespace SS
             // Registers the event where the selection changes.
             spreadsheetPanel1.SelectionChanged += displaySelection;
             spreadsheetPanel1.SetSelection(2, 3);  // Selects C4 by default.
+        }
+
+        private void MessageReceived(String line)
+        {
+            //
         }
 
         /// <summary>
@@ -192,22 +201,22 @@ namespace SS
         /// <param name="e"></param>
         private void ContentBox_TextChanged(object sender, EventArgs e)
         {
-            int row, col;   // Establishes variables to store row and column information. 
-            String value;   // Establishes a variable to store cell value information.
+            int row, col; // Establishes variables to store row and column information.
+            String value;
             IEnumerable<string> ToBeUpdated; // Creates an enumerable to store the cells of the spreadsheet to be updated.
 
             ErrorBox.Clear(); // Clears any error message displayed in the special error box.
 
             try // Attempts to change the contents and value of the cell within the spreadsheet GUI.
             {
+                beingEdited = true;
+
                 // Sets the contents and values of the logic cells and stores the returned set in the enumerable.
-                ToBeUpdated = ss.SetContentsOfCell(NameBox.Text, ContentBox.Text.ToUpper());                    
+                ToBeUpdated = ss.SetContentsOfCell(NameBox.Text, ContentBox.Text.ToUpper());
                 spreadsheetPanel1.GetSelection(out col, out row);     // Retrieves the column and row information of the current selection.
                 spreadsheetPanel1.GetValue(col, row, out value);      // Gets the value of the currently selected cell.
                 spreadsheetPanel1.SetValue(col, row, ss.GetCellValue(NameBox.Text).ToString()); // Sets the value of the currently selection.
                 ValueBox.Text = ss.GetCellValue(NameBox.Text).ToString(); // Updates the text of the box that displays the current cell value.
-
-                beingEdited = true; // Records that the current cell is being edited.
 
                 foreach (string cell in ToBeUpdated)  // Updates each of the cells that were directly or indirectly dependent on the current selection.
                 {
@@ -313,6 +322,8 @@ namespace SS
                 ContentBox.Text = ss.GetCellContents(NameBox.Text).ToString();
             ValueBox.Text = ss.GetCellValue(NameBox.Text).ToString(); // Updates the value displayed for the current selection.
 
+            ErrorBox.Clear();
+
             beingEdited = false; // Records that the current selection is no longer being edited.
         }
 
@@ -386,18 +397,43 @@ namespace SS
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        //private void NameBox_KeyDown(object sender, KeyEventArgs e)
-        //{
-        //    int row, col;
-        //    if (e.KeyCode == Keys.Enter || e.KeyCode == Keys.Return)
-        //    {
-        //        col = ConvertLetterToNumber(NameBox.Text[0]);
-        //        Int32.TryParse(NameBox.Text.ToString().Substring(1), out row);
-        //        spreadsheetPanel1.SetSelection(col, row-1);
-        //
-        //        updateBoxes(col, row-1);
-        //        ContentBox.Focus();
-        //    }
-        //}
+        private void NameBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            int row, col;
+            String oldName;
+            if (e.KeyCode == Keys.Enter || e.KeyCode == Keys.Return)
+            {
+                NameBox.Text = NameBox.Text.ToUpper();
+                spreadsheetPanel1.GetSelection(out col, out row);
+                char column = (char)(col + 65);
+                oldName = column + (row + 1).ToString();
+
+                col = ConvertLetterToNumber(NameBox.Text[0]);
+                if (Int32.TryParse(NameBox.Text.ToString().Substring(1), out row))
+                {
+                    if (row < 100 && row > 0)
+                    {
+                        spreadsheetPanel1.SetSelection(col, row - 1);
+
+                        updateBoxes(col, row - 1);
+                        ContentBox.Focus();
+                    }
+                    else
+                    {
+                        ErrorBox.Text = "THAT'S NOT A CELL NAME, DUMBASS! JESUS!";
+
+                        NameBox.Text = oldName;
+                        ContentBox.Focus();
+                    }
+                }
+                else
+                {
+                    ErrorBox.Text = "THAT'S NOT A CELL NAME, DUMBASS! JESUS!";
+
+                    NameBox.Text = oldName;
+                    ContentBox.Focus();
+                }
+            }
+        }
     }
 }

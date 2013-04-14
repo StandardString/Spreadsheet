@@ -33,7 +33,7 @@ namespace SS
             {
                 TcpClient client = new TcpClient(hostname, port);
                 socket = new StringSocket(client.Client, UTF8Encoding.Default);
-                socket.BeginSend(name + "\n", (e, p) => {}, object p);
+                socket.BeginSend(name + "\n", (e, p) => {}, null);
                 socket.BeginReceive(LineReceived, null);
             }
         }
