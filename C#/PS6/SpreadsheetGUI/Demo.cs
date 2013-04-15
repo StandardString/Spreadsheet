@@ -28,7 +28,7 @@ namespace SS
         ///  - A boolean that keeps track of whether or not a cell is being edited.
         /// </summary>
         private SS.AbstractSpreadsheet ss;
-        //private SS.SpreadsheetClient model;
+        private SS.SpreadsheetClient model;
         private bool beingEdited = false;
         private bool firstEdit = true;
 
@@ -46,8 +46,8 @@ namespace SS
             spreadsheetPanel1.SelectionChanged += displaySelection;
             spreadsheetPanel1.SetSelection(2, 3);  // Selects C4 by default.
 
-            //model = new SpreadsheetClient();
-            //model.IncomingLineEvent += MessageReceived;
+            model = new SpreadsheetClient();
+            model.IncomingLineEvent += MessageReceived;
         }
 
         /// <summary>
@@ -79,11 +79,9 @@ namespace SS
             // Registers the event where the selection changes.
             spreadsheetPanel1.SelectionChanged += displaySelection;
             spreadsheetPanel1.SetSelection(2, 3);  // Selects C4 by default.
-        }
 
-        private void MessageReceived(String line)
-        {
-            //
+            model = new SpreadsheetClient();
+            model.IncomingLineEvent += MessageReceived;
         }
 
         /// <summary>
@@ -231,6 +229,11 @@ namespace SS
                 string report = c.Message;
                 ErrorBox.Text = report;
             }
+        }
+
+        private void MessageReceived(String line)
+        {
+            Console.WriteLine(line);
         }
 
         /// <summary>

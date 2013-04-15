@@ -81,6 +81,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\SpreadsheetClient\SpreadsheetClient.csproj">
+      <Project>{6DE91C6C-C4AB-4DB4-A508-E5D92EC1EF53}</Project>
+      <Name>SpreadsheetClient</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Spreadsheet\Spreadsheet.csproj">
       <Project>{AF3AAE58-AA88-447B-8990-094AB9364467}</Project>
       <Name>Spreadsheet</Name>
