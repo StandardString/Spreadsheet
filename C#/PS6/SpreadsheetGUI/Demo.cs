@@ -1,11 +1,12 @@
 ﻿// Author:  Bryan K. Smith
 // Class:   CS 3500
 // Date:    10/17/2012
-// Version: 1.2.201
+// Version: 1.3.007
 //
 // Revision History:
 //           1.1.00 - 10/1/2012 - Created new methods to match the updated specification of AbstractSpreadsheet.
 //           1.2.00 - 10/17/2012 - Modified acceptible variable formats and added GUI element.
+//           1.3.00 - 4/15/2013 - Added sockets and connection support.
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -30,9 +31,9 @@ namespace SS
         private SS.AbstractSpreadsheet ss;
         private SS.SpreadsheetClient model;
         private bool beingEdited = false;
-        private String IPAddress = "";
+        private String IPAddress = "155.98.108.45";
 
-        private Form2 connectForm;
+        private SS.Form2 connectForm;
 
         /// <summary>
         /// Constructor for the spreadsheet form.
@@ -362,7 +363,7 @@ namespace SS
         private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
         {
             // Creates a message to display in the "About" message box.
-            string message = "Spreadsheet Application - v1.3.003";
+            string message = "Spreadsheet Application - v1.3.007";
             message += "\nLast Revision: 4/15/2013";
             message += "\n";
             message += "\nWritten by Bryan K. Smith for CS 3500";
@@ -453,7 +454,12 @@ namespace SS
             string message = "Username: " + user + " Password: " + pass + "\n";
             ErrorBox.Text = message;
 
-            //model.Connect(IPAddress, 1984, "Hello");
+            try { model.Connect(IPAddress, 1984, "Hello"); }
+            catch (Exception e) 
+            { 
+                ErrorBox.Text = e.Message.ToString();
+                model.Disconnect();
+            }
         }
     }
 }

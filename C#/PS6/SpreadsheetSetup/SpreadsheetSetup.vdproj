@@ -33,7 +33,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_43A6A0E0ED8A4D66B8062F3D3BBE2EBA"
+        "MsmKey" = "8:_6ADAA6FB355643139FFFDCA3ECE98BE3"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -70,13 +70,7 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_CADCFC77FA704A88B0AC92EFEBD1A383"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_0D3BC38656445631F64DBE40E0D00F4B"
+        "OwnerKey" = "8:_90D38C45797FAECB2F26FDDB8B7963DC"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -88,7 +82,13 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_90D38C45797FAECB2F26FDDB8B7963DC"
+        "OwnerKey" = "8:_0D3BC38656445631F64DBE40E0D00F4B"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_CADCFC77FA704A88B0AC92EFEBD1A383"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -109,6 +109,14 @@
         "PrivateKeyFile" = "8:"
         "TimeStampServer" = "8:"
         "InstallerBootstrapper" = "3:2"
+            "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
+            {
+            "Enabled" = "11:TRUE"
+            "PromptEnabled" = "11:TRUE"
+            "PrerequisitesLocation" = "2:1"
+            "Url" = "8:"
+            "ComponentsUrl" = "8:"
+            }
         }
         "Release"
         {
@@ -125,6 +133,14 @@
         "PrivateKeyFile" = "8:"
         "TimeStampServer" = "8:"
         "InstallerBootstrapper" = "3:2"
+            "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
+            {
+            "Enabled" = "11:TRUE"
+            "PromptEnabled" = "11:TRUE"
+            "PrerequisitesLocation" = "2:1"
+            "Url" = "8:"
+            "ComponentsUrl" = "8:"
+            }
         }
     }
     "Deployable"
@@ -161,11 +177,6 @@
             "AssemblyAsmDisplayName" = "8:Spreadsheet, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_0D3BC38656445631F64DBE40E0D00F4B"
-                    {
-                    "Name" = "8:Spreadsheet.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:Spreadsheet.dll"
             "TargetName" = "8:"
@@ -192,11 +203,6 @@
             "AssemblyAsmDisplayName" = "8:SpreadsheetUtilities, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_1C03B48559D9D6735FAB23AFDF149314"
-                    {
-                    "Name" = "8:SpreadsheetUtilities.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:SpreadsheetUtilities.dll"
             "TargetName" = "8:"
@@ -216,10 +222,10 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_43A6A0E0ED8A4D66B8062F3D3BBE2EBA"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6ADAA6FB355643139FFFDCA3ECE98BE3"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\Downloads\\pink_bantha.ico"
-            "TargetName" = "8:pink_bantha.ico"
+            "SourcePath" = "8:..\\favicon.ico"
+            "TargetName" = "8:favicon.ico"
             "Tag" = "8:"
             "Folder" = "8:_5D5B1D327A094E298A6F62029861E762"
             "Condition" = "8:"
@@ -243,11 +249,6 @@
             "AssemblyAsmDisplayName" = "8:Formula, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_90D38C45797FAECB2F26FDDB8B7963DC"
-                    {
-                    "Name" = "8:Formula.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:Formula.dll"
             "TargetName" = "8:"
@@ -274,11 +275,6 @@
             "AssemblyAsmDisplayName" = "8:SpreadsheetPanel, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86"
                 "ScatterAssemblies"
                 {
-                    "_FC8402082E0661EA2DBC7AF1294316A1"
-                    {
-                    "Name" = "8:SpreadsheetPanel.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:SpreadsheetPanel.dll"
             "TargetName" = "8:"
@@ -307,7 +303,7 @@
             "Description" = "8:"
             "Extensions" = "8:.ss"
             "MIME" = "8:"
-            "Icon" = "8:_43A6A0E0ED8A4D66B8062F3D3BBE2EBA"
+            "Icon" = "8:"
             "IconIndex" = "3:0"
                 "Command"
                 {
@@ -509,7 +505,7 @@
             "Target" = "8:_CADCFC77FA704A88B0AC92EFEBD1A383"
             "Folder" = "8:_2DA19BEA4D8849E29881F0D986687452"
             "WorkingFolder" = "8:_5D5B1D327A094E298A6F62029861E762"
-            "Icon" = "8:_43A6A0E0ED8A4D66B8062F3D3BBE2EBA"
+            "Icon" = "8:"
             "Feature" = "8:"
             }
             "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_BD7D129C389F4A3BBE59EEA93527DCF6"
@@ -523,7 +519,7 @@
             "Target" = "8:_CADCFC77FA704A88B0AC92EFEBD1A383"
             "Folder" = "8:_298B669C63614B5FB5196DD0ECBDEF0F"
             "WorkingFolder" = "8:_5D5B1D327A094E298A6F62029861E762"
-            "Icon" = "8:_43A6A0E0ED8A4D66B8062F3D3BBE2EBA"
+            "Icon" = "8:"
             "Feature" = "8:"
             }
         }

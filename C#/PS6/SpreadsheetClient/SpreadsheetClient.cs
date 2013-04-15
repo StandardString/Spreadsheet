@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Net;
 using System.Net.Sockets;
 using CustomNetworking;
 
@@ -25,7 +26,7 @@ namespace SS
                 {
                     TcpClient client = new TcpClient(hostname, port);
                     socket = new StringSocket(client.Client, UTF8Encoding.Default);
-                    socket.BeginSend("PLAY " + name + "\n", (e, p) => { }, null);
+                    socket.BeginSend(name + "\n", (e, p) => { }, null);
                     socket.BeginReceive(LineReceived, null);
                 }
             }
