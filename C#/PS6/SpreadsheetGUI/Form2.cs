@@ -18,6 +18,7 @@ namespace SS
             InitializeComponent();
 
             this.context = primaryForm;
+            ConnectButton.Enabled = false;
         }
 
         private void ConnectButton_Click(object sender, EventArgs e)
@@ -32,6 +33,26 @@ namespace SS
         private void CancelButton_Click(object sender, EventArgs e)
         {
             this.Close();
+        }
+
+        private void UsernameBox_TextChanged(object sender, EventArgs e)
+        {
+            String username = UsernameBox.Text.Trim();
+            String password = PasswordBox.Text.Trim();
+            if (username != "" && password != "")
+                ConnectButton.Enabled = true;
+            else
+                ConnectButton.Enabled = false;
+        }
+
+        private void PasswordBox_TextChanged(object sender, EventArgs e)
+        {
+            String username = UsernameBox.Text.Trim();
+            String password = PasswordBox.Text.Trim();
+            if (username != "" && password != "")
+                ConnectButton.Enabled = true;
+            else
+                ConnectButton.Enabled = false;
         }
     }
 }
