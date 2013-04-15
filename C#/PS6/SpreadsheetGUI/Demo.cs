@@ -236,7 +236,7 @@ namespace SS
 
         private void MessageReceived(String line)
         {
-            ErrorBox.Text = line;
+            ErrorBox.Invoke(new Action(() => { ErrorBox.Text = line; }));
         }
 
         /// <summary>
