@@ -24,8 +24,13 @@ namespace SS
         {
             String username = UsernameBox.Text.ToString();
             String password = PasswordBox.Text.ToString();
-            context.recordInformation(username, password);
+            context.connect(username, password);
 
+            this.Close();
+        }
+
+        private void CancelButton_Click(object sender, EventArgs e)
+        {
             this.Close();
         }
     }

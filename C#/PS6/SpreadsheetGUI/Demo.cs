@@ -30,6 +30,8 @@ namespace SS
         private SS.AbstractSpreadsheet ss;
         private SS.SpreadsheetClient model;
         private bool beingEdited = false;
+        private String IPAddress = "";
+
         private Form2 connectForm;
 
         /// <summary>
@@ -233,7 +235,7 @@ namespace SS
 
         private void MessageReceived(String line)
         {
-            Console.WriteLine(line);
+            ErrorBox.Text = line;
         }
 
         /// <summary>
@@ -446,10 +448,12 @@ namespace SS
             }
         }
 
-        public void recordInformation(String user, String pass)
+        public void connect(String user, String pass)
         {
             string message = "Username: " + user + " Password: " + pass + "\n";
             ErrorBox.Text = message;
+
+            //model.Connect(IPAddress, 1984, "Hello");
         }
     }
 }
