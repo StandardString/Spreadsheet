@@ -1,5 +1,0 @@
-
-all: session.o server.o
-
-server.o: server.cpp
-	g++ server.cpp -lboost_system -pthread
