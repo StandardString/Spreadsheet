@@ -30,8 +30,7 @@ namespace SS
         private SS.AbstractSpreadsheet ss;
         private SS.SpreadsheetClient model;
         private bool beingEdited = false;
-        private String IPaddress = "155.98.109.52";
-        private Form2 connectForm = new Form2();
+        private Form2 connectForm;
 
         /// <summary>
         /// Constructor for the spreadsheet form.
@@ -245,7 +244,7 @@ namespace SS
         private void ContentBox_KeyDown(object sender, KeyEventArgs e)
         {
             int row, col; // Establishes variables to store row and column information.
-            
+
             if (e.KeyCode == Keys.Left)  // If the left arrow key is pressed, moves the selection 1 column to the left.
             {
                 spreadsheetPanel1.GetSelection(out col, out row);
@@ -397,14 +396,8 @@ namespace SS
 
         private void toExistingToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            connectForm = new Form2(this);
             connectForm.Show();
-
-            //string title = "Connect";
-            //string message = "Attempting to connect to server, please wait ...";
-            //DialogResult result = new DialogResult();
-            //result = MessageBox.Show(message, title, MessageBoxButtons.RetryCancel);
-            //if (result.ToString().Equals("Retry"))
-            //    toExistingToolStripMenuItem_Click(sender, e);
         }
 
         /// <summary>
@@ -451,6 +444,12 @@ namespace SS
                     ContentBox.Focus();
                 }
             }
+        }
+
+        public void recordInformation(String user, String pass)
+        {
+            string message = "Username: " + user + " Password: " + pass + "\n";
+            ErrorBox.Text = message;
         }
     }
 }

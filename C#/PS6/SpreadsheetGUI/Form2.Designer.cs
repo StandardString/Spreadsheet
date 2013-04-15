@@ -40,10 +40,11 @@
             // 
             this.ConnectButton.Location = new System.Drawing.Point(12, 101);
             this.ConnectButton.Name = "ConnectButton";
-            this.ConnectButton.Size = new System.Drawing.Size(98, 23);
+            this.ConnectButton.Size = new System.Drawing.Size(114, 23);
             this.ConnectButton.TabIndex = 0;
             this.ConnectButton.Text = "Connect";
             this.ConnectButton.UseVisualStyleBackColor = true;
+            this.ConnectButton.Click += new System.EventHandler(this.ConnectButton_Click);
             // 
             // UsernameBox
             // 
@@ -79,9 +80,9 @@
             // 
             // CancelButton
             // 
-            this.CancelButton.Location = new System.Drawing.Point(151, 101);
+            this.CancelButton.Location = new System.Drawing.Point(132, 101);
             this.CancelButton.Name = "CancelButton";
-            this.CancelButton.Size = new System.Drawing.Size(104, 23);
+            this.CancelButton.Size = new System.Drawing.Size(123, 23);
             this.CancelButton.TabIndex = 5;
             this.CancelButton.Text = "Cancel";
             this.CancelButton.UseVisualStyleBackColor = true;

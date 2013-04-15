@@ -11,21 +11,22 @@ namespace SS
 {
     public partial class Form2 : Form
     {
-        public Form2()
+        Form1 context;
+
+        public Form2(Form1 primaryForm)
         {
             InitializeComponent();
+
+            this.context = primaryForm;
         }
 
-        public String getUsername()
+        private void ConnectButton_Click(object sender, EventArgs e)
         {
-            //
-            return "";
-        }
+            String username = UsernameBox.Text.ToString();
+            String password = PasswordBox.Text.ToString();
+            context.recordInformation(username, password);
 
-        public String getPassword()
-        {
-            //
-            return "";
+            this.Close();
         }
     }
 }
