@@ -48,6 +48,8 @@
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.ErrorBox = new System.Windows.Forms.TextBox();
+            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.toExistingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -68,6 +70,7 @@
             this.menuStrip1.BackColor = System.Drawing.SystemColors.ActiveCaption;
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
+            this.toolStripMenuItem1,
             this.helpToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
@@ -138,7 +141,7 @@
             // aboutToolStripMenuItem
             // 
             this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.aboutToolStripMenuItem.Text = "About";
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
             // 
@@ -146,7 +149,7 @@
             // 
             this.howToUseToolStripMenuItem.Name = "howToUseToolStripMenuItem";
             this.howToUseToolStripMenuItem.ShortcutKeys = System.Windows.Forms.Keys.F1;
-            this.howToUseToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
+            this.howToUseToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.howToUseToolStripMenuItem.Text = "How To";
             this.howToUseToolStripMenuItem.Click += new System.EventHandler(this.howToUseToolStripMenuItem_Click);
             // 
@@ -173,7 +176,6 @@
             this.NameBox.BackColor = System.Drawing.SystemColors.Window;
             this.NameBox.Location = new System.Drawing.Point(8, 27);
             this.NameBox.Name = "NameBox";
-            this.NameBox.ReadOnly = false;
             this.NameBox.Size = new System.Drawing.Size(100, 20);
             this.NameBox.TabIndex = 6;
             this.NameBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.NameBox_KeyDown);
@@ -214,6 +216,21 @@
             this.ErrorBox.ReadOnly = true;
             this.ErrorBox.Size = new System.Drawing.Size(303, 20);
             this.ErrorBox.TabIndex = 9;
+            // 
+            // toolStripMenuItem1
+            // 
+            this.toolStripMenuItem1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toExistingToolStripMenuItem});
+            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(64, 20);
+            this.toolStripMenuItem1.Text = "Connect";
+            // 
+            // toExistingToolStripMenuItem
+            // 
+            this.toExistingToolStripMenuItem.Name = "toExistingToolStripMenuItem";
+            this.toExistingToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.toExistingToolStripMenuItem.Text = "To Existing";
+            this.toExistingToolStripMenuItem.Click += new System.EventHandler(this.toExistingToolStripMenuItem_Click);
             // 
             // Form1
             // 
@@ -261,6 +278,8 @@
         private System.Windows.Forms.TextBox ErrorBox;
         private System.Windows.Forms.ToolStripMenuItem saveAsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem howToUseToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem toExistingToolStripMenuItem;
 
 
 

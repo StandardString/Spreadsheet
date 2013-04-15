@@ -30,7 +30,7 @@ namespace SS
         private SS.AbstractSpreadsheet ss;
         private SS.SpreadsheetClient model;
         private bool beingEdited = false;
-        private bool firstEdit = true;
+        private String IPaddress = "155.98.109.52";
 
         /// <summary>
         /// Constructor for the spreadsheet form.
@@ -360,10 +360,11 @@ namespace SS
         private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
         {
             // Creates a message to display in the "About" message box.
-            string message = "Spreadsheet Application - v1.2.201";
-            message += "\nLast Revision: 10/18/2012";
+            string message = "Spreadsheet Application - v1.3.003";
+            message += "\nLast Revision: 4/15/2013";
             message += "\n";
             message += "\nWritten by Bryan K. Smith for CS 3500";
+            message += "\nModified by Bryan K. Smith for CS 3505";
             MessageBox.Show(message, "About");
         }
 
@@ -391,6 +392,16 @@ namespace SS
             message += "\n     backspace or delete keys. Pressing delete or backspace after selecting a cell";
             message += "\n     will delete the entire contents of the cell.";
             MessageBox.Show(message, "How To");
+        }
+
+        private void toExistingToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string title = "Connect";
+            string message = "Attempting to connect to server, please wait ...";
+            DialogResult result = new DialogResult();
+            result = MessageBox.Show(message, title, MessageBoxButtons.RetryCancel);
+            if (result.ToString().Equals("Retry"))
+                toExistingToolStripMenuItem_Click(sender, e);
         }
 
         /// <summary>
