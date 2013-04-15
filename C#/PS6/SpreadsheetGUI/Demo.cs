@@ -31,6 +31,7 @@ namespace SS
         private SS.SpreadsheetClient model;
         private bool beingEdited = false;
         private String IPaddress = "155.98.109.52";
+        private Form2 connectForm = new Form2();
 
         /// <summary>
         /// Constructor for the spreadsheet form.
@@ -396,12 +397,14 @@ namespace SS
 
         private void toExistingToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            string title = "Connect";
-            string message = "Attempting to connect to server, please wait ...";
-            DialogResult result = new DialogResult();
-            result = MessageBox.Show(message, title, MessageBoxButtons.RetryCancel);
-            if (result.ToString().Equals("Retry"))
-                toExistingToolStripMenuItem_Click(sender, e);
+            connectForm.Show();
+
+            //string title = "Connect";
+            //string message = "Attempting to connect to server, please wait ...";
+            //DialogResult result = new DialogResult();
+            //result = MessageBox.Show(message, title, MessageBoxButtons.RetryCancel);
+            //if (result.ToString().Equals("Retry"))
+            //    toExistingToolStripMenuItem_Click(sender, e);
         }
 
         /// <summary>
