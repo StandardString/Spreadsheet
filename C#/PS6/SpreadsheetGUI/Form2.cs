@@ -18,7 +18,9 @@ namespace SS
             InitializeComponent();
 
             this.context = primaryForm;
-            ConnectButton.Enabled = false;
+            UsernameBox.Text = "admin";
+            PasswordBox.Text = "admin";
+            ConnectButton.Enabled = true;
         }
 
         private void ConnectButton_Click(object sender, EventArgs e)

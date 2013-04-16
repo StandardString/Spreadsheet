@@ -48,7 +48,7 @@ namespace SS
             {
                 if (e != null)
                     IncomingLineEvent(e.ToString());
-                else if (s != null)
+                if (s != null)
                     IncomingLineEvent(s);
             }
 
