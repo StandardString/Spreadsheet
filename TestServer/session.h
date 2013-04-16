@@ -26,11 +26,6 @@ public:
    void remove_socket(boost::asio::ip::tcp::socket *user);
    bool contains_socket(boost::asio::ip::tcp::socket *user);
    void broadcast(std::string &msg);
-
-   void handle_write(const boost::system::error_code& /*error*/,
-      size_t /*bytes_transferred*/)
-  {
-  }
 };
 
 #endif
