@@ -50,6 +50,7 @@
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.ErrorBox = new System.Windows.Forms.TextBox();
+            this.leaveSessionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -132,7 +133,8 @@
             // toolStripMenuItem1
             // 
             this.toolStripMenuItem1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toExistingToolStripMenuItem});
+            this.toExistingToolStripMenuItem,
+            this.leaveSessionToolStripMenuItem});
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
             this.toolStripMenuItem1.Size = new System.Drawing.Size(64, 20);
             this.toolStripMenuItem1.Text = "Connect";
@@ -232,6 +234,13 @@
             this.ErrorBox.Size = new System.Drawing.Size(303, 20);
             this.ErrorBox.TabIndex = 9;
             // 
+            // leaveSessionToolStripMenuItem
+            // 
+            this.leaveSessionToolStripMenuItem.Name = "leaveSessionToolStripMenuItem";
+            this.leaveSessionToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.leaveSessionToolStripMenuItem.Text = "Leave Session";
+            this.leaveSessionToolStripMenuItem.Click += new System.EventHandler(this.leaveSessionToolStripMenuItem_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -280,6 +289,7 @@
         private System.Windows.Forms.ToolStripMenuItem howToUseToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem toExistingToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem leaveSessionToolStripMenuItem;
 
 
 

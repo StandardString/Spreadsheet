@@ -1,0 +1,109 @@
+ArrayList lines = ...'
+
+public void stuff()
+{
+	if (current line begins a command)
+	{
+		clear lines list
+	}
+
+	lines.add(current line)
+	
+	if (first line starts with "SOME TAG"
+		and lines.size() == command size)
+	{
+		go do command with lines
+		clear lines
+	}
+}
+
+-----------------------------------------------------
+		COMMAND LIST (->CLIENT)
+-----------------------------------------------------
+
+1. CREATE OK\n
+   Name:name\n
+   Password:password\n
+
+2. CREATE FAIL\n
+   Name:name\n
+   message\n
+
+3. JOIN OK\n
+   Name:name\n
+   Version:version\n
+   Length:length\n
+   xml\n
+
+4. JOIN FAIL\n
+   Name:name\n
+   message\n
+
+5. CHANGE OK\n
+   Name:name\n
+   Version:version\n
+
+6. CHANGE FAIL\n
+   Name:name\n
+   message\n
+
+7. UNDO OK\n
+   Name:name \n
+   Version:version \n
+
+8. UNDO END\n
+   Name:name \n
+   Version:version \n
+
+9. UNDO WAIT\n
+   Name:name\n
+   Version:version\n
+
+10. UNDO FAIL\n
+    Name:name\n
+    message\n
+
+11. UPDATE\n
+    Name:name\n
+    Version:version\n
+    Cell:cell\n
+    Length:length\n
+    content\n
+
+12. SAVE OK\n
+    Name:name\n
+
+13. SAVE FAIL\n
+    Name:name\n
+    message\n
+
+14. ERROR\n
+
+-----------------------------------------------------
+		COMMAND LIST (->SERVER)
+-----------------------------------------------------
+
+1. CREATE\n
+   Name:name\n
+   Password:password\n
+
+2. JOIN\n
+   Name:name\n
+   Password:password\n
+
+3. CHANGE\n
+   Name:name\n
+   Version:version\n
+   Cell:cell\n
+   Length:length\n
+   content\n
+
+4. UNDO\n
+   Name:name\n
+   Version:version\n
+
+5. SAVE\n
+   Name:name\n
+
+6. LEAVE\n
+   Name:name\n

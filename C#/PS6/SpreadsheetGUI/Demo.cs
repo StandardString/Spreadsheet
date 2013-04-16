@@ -31,7 +31,11 @@ namespace SS
         private SS.AbstractSpreadsheet ss;
         private SS.SpreadsheetClient model;
         private bool beingEdited = false;
-        private String IPAddress = "155.98.108.45";
+        private String IPAddress = "155.98.111.51";
+        private int port = 1984;
+        private int index = 0;
+
+        private List<String> lines;
 
         private SS.Form2 connectForm;
 
@@ -236,7 +240,21 @@ namespace SS
 
         private void MessageReceived(String line)
         {
-            ErrorBox.Invoke(new Action(() => { ErrorBox.Text = line; }));
+            if (!line.StartsWith("System.Net") || line == "")
+            {
+                spreadsheetPanel1.SetValue(9, index, line);
+                index++;
+            }
+
+            // If current line begins a command.
+            // Clear lines.
+
+            lines.Add(line);
+
+            // If first line starts with "SOME TAG" and lines.size()
+            // == command size
+            // Go do command with lines.
+            // Clear lines.
         }
 
         /// <summary>
@@ -345,14 +363,24 @@ namespace SS
                 DialogResult result = new DialogResult(); // Creates a message box that asks the user if they want to save before closing.
                 result = MessageBox.Show("Do you want to save the spreadsheet before closing?", "Close", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning);
                 if (result.ToString().Equals("Yes"))      // If the response is yes, runs "Save As."
+                {
                     saveAsToolStripMenuItem_Click(sender, e);
-                else if (result.ToString().Equals("No"))  // If the response is no, closes the window.
+                    model.Disconnect();
                     e.Cancel = false;
+                }
+                else if (result.ToString().Equals("No"))  // If the response is no, closes the window.
+                {
+                    model.Disconnect();
+                    e.Cancel = false;
+                }
                 else                                      // Otherwise the window does nothing and the prompt closes.
                     e.Cancel = true;
             }
             else   // If the spreadsheet hasn't been altered, the window closes.
+            {
+                model.Disconnect();
                 e.Cancel = false;
+            }
         }
 
         /// <summary>
@@ -403,6 +431,12 @@ namespace SS
             connectForm.Show();
         }
 
+        private void leaveSessionToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ErrorBox.Text = "Disconnected from server.";
+            model.Disconnect();
+        }
+
         /// <summary>
         /// A helper function that enables the user to select keys using the Name textbox.
         /// Goes against the specification designated by the instructor, as the name textbox was
@@ -451,14 +485,17 @@ namespace SS
 
         public void connect(String user, String pass)
         {
-            string message = "Username: " + user + " Password: " + pass + "\n";
-            ErrorBox.Text = message;
+            ErrorBox.Text = "Attempting to connect to server...";
 
-            try { model.Connect(IPAddress, 1984, "Hello"); }
-            catch (Exception e) 
+            try 
             { 
-                ErrorBox.Text = e.Message.ToString();
-                model.Disconnect();
+                model.Connect(IPAddress, port, "Bob Kessler");
+                ErrorBox.Text = "Established connection with the host server.";
+            }
+            catch (Exception e) 
+            {
+                ErrorBox.Text = "Failed to connect to host server: ";
+                ErrorBox.Text += e.Message.ToString();
             }
         }
     }

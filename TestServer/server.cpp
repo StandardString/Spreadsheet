@@ -14,6 +14,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/asio.hpp>
+#include "session.h"
 
 using boost::asio::ip::tcp;
  std::string make_daytime_string()
@@ -41,7 +42,7 @@ public:
 
   void start()
   {
-
+ 
     message_ = "MEOW \n";
     boost::asio::async_write(socket_, boost::asio::buffer(message_),
         boost::bind(&tcp_connection::handle_write, shared_from_this(),
@@ -70,6 +71,7 @@ public:
   tcp_server(boost::asio::io_service& io_service)
     : acceptor_(io_service, tcp::endpoint(tcp::v4(), 1984))
   {
+
     start_accept();
   }
 
@@ -83,29 +85,34 @@ private:
     acceptor_.async_accept(new_connection->socket(),
         boost::bind(&tcp_server::handle_accept, this, new_connection,
           boost::asio::placeholders::error));
-
+    
  
   }
 
   void handle_accept(tcp_connection::pointer new_connection,
       const boost::system::error_code& error)
-  {
-    std::cout << "HELLO" << std::endl;
-    
-    //  tcp::socket& incoming = new_connection->socket();
-    // boost::array<char, 128> buf;
-    // size_t len = incoming.read_some(boost::asio::buffer(buf));
-    //  std::cout.write(buf.data(), len);
-    
+  {    
+   
   
 
     if (!error)
     {
-      new_connection->start();
+      tcp::socket& incoming = new_connection->socket();
+      boost::array<char, 128> buf;
+      size_t len = incoming.read_some(boost::asio::buffer(buf));
+      std::cout.write(buf.data(), len);
+      session::session connected;
+      std::string msg = "WELCOME TO SERVER LAND \n";
+      connected.add_socket(&incoming);
+      connected.broadcast(msg);
+      std::cout << "IN NO ERROR" << std::endl;
+      // new_connection->start();
       start_accept();
     }
-    else if (error)
+    else if (error){
+      std::cerr << "in error"  << std::endl;
       throw boost::system::system_error(error);
+    }
   }
 
   tcp::acceptor acceptor_;
