@@ -37,8 +37,11 @@
             this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.toExistingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.serverToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.createSessionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.joinExistingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveSessionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.undoLastToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.leaveSessionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -51,8 +54,6 @@
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.ErrorBox = new System.Windows.Forms.TextBox();
-            this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.undoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -73,8 +74,7 @@
             this.menuStrip1.BackColor = System.Drawing.SystemColors.ActiveCaption;
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
-            this.editToolStripMenuItem,
-            this.toolStripMenuItem1,
+            this.serverToolStripMenuItem,
             this.helpToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
@@ -133,26 +133,51 @@
             this.closeToolStripMenuItem.Text = "Close";
             this.closeToolStripMenuItem.Click += new System.EventHandler(this.closeToolStripMenuItem_Click);
             // 
-            // toolStripMenuItem1
+            // serverToolStripMenuItem
             // 
-            this.toolStripMenuItem1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toExistingToolStripMenuItem,
+            this.serverToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.createSessionToolStripMenuItem,
+            this.joinExistingToolStripMenuItem,
+            this.saveSessionToolStripMenuItem,
+            this.undoLastToolStripMenuItem,
             this.leaveSessionToolStripMenuItem});
-            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(64, 20);
-            this.toolStripMenuItem1.Text = "Connect";
+            this.serverToolStripMenuItem.Name = "serverToolStripMenuItem";
+            this.serverToolStripMenuItem.Size = new System.Drawing.Size(51, 20);
+            this.serverToolStripMenuItem.Text = "Server";
             // 
-            // toExistingToolStripMenuItem
+            // createSessionToolStripMenuItem
             // 
-            this.toExistingToolStripMenuItem.Name = "toExistingToolStripMenuItem";
-            this.toExistingToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
-            this.toExistingToolStripMenuItem.Text = "To Existing";
-            this.toExistingToolStripMenuItem.Click += new System.EventHandler(this.toExistingToolStripMenuItem_Click);
+            this.createSessionToolStripMenuItem.Name = "createSessionToolStripMenuItem";
+            this.createSessionToolStripMenuItem.Size = new System.Drawing.Size(174, 22);
+            this.createSessionToolStripMenuItem.Text = "Create Session";
+            this.createSessionToolStripMenuItem.Click += new System.EventHandler(this.createSessionToolStripMenuItem_Click);
+            // 
+            // joinExistingToolStripMenuItem
+            // 
+            this.joinExistingToolStripMenuItem.Name = "joinExistingToolStripMenuItem";
+            this.joinExistingToolStripMenuItem.Size = new System.Drawing.Size(174, 22);
+            this.joinExistingToolStripMenuItem.Text = "Join Existing";
+            this.joinExistingToolStripMenuItem.Click += new System.EventHandler(this.joinExistingToolStripMenuItem_Click);
+            // 
+            // saveSessionToolStripMenuItem
+            // 
+            this.saveSessionToolStripMenuItem.Name = "saveSessionToolStripMenuItem";
+            this.saveSessionToolStripMenuItem.Size = new System.Drawing.Size(174, 22);
+            this.saveSessionToolStripMenuItem.Text = "Save Session";
+            this.saveSessionToolStripMenuItem.Click += new System.EventHandler(this.saveSessionToolStripMenuItem_Click);
+            // 
+            // undoLastToolStripMenuItem
+            // 
+            this.undoLastToolStripMenuItem.Name = "undoLastToolStripMenuItem";
+            this.undoLastToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl + Z";
+            this.undoLastToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Z)));
+            this.undoLastToolStripMenuItem.Size = new System.Drawing.Size(174, 22);
+            this.undoLastToolStripMenuItem.Text = "Undo Last";
             // 
             // leaveSessionToolStripMenuItem
             // 
             this.leaveSessionToolStripMenuItem.Name = "leaveSessionToolStripMenuItem";
-            this.leaveSessionToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
+            this.leaveSessionToolStripMenuItem.Size = new System.Drawing.Size(174, 22);
             this.leaveSessionToolStripMenuItem.Text = "Leave Session";
             this.leaveSessionToolStripMenuItem.Click += new System.EventHandler(this.leaveSessionToolStripMenuItem_Click);
             // 
@@ -244,23 +269,6 @@
             this.ErrorBox.Size = new System.Drawing.Size(303, 20);
             this.ErrorBox.TabIndex = 9;
             // 
-            // editToolStripMenuItem
-            // 
-            this.editToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.undoToolStripMenuItem});
-            this.editToolStripMenuItem.Name = "editToolStripMenuItem";
-            this.editToolStripMenuItem.Size = new System.Drawing.Size(39, 20);
-            this.editToolStripMenuItem.Text = "Edit";
-            // 
-            // undoToolStripMenuItem
-            // 
-            this.undoToolStripMenuItem.Name = "undoToolStripMenuItem";
-            this.undoToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl + Z";
-            this.undoToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Z)));
-            this.undoToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.undoToolStripMenuItem.Text = "Undo";
-            this.undoToolStripMenuItem.Click += new System.EventHandler(this.undoToolStripMenuItem_Click);
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -307,11 +315,12 @@
         private System.Windows.Forms.TextBox ErrorBox;
         private System.Windows.Forms.ToolStripMenuItem saveAsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem howToUseToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
-        private System.Windows.Forms.ToolStripMenuItem toExistingToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem serverToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem joinExistingToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem leaveSessionToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem undoToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem createSessionToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem saveSessionToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem undoLastToolStripMenuItem;
 
 
 

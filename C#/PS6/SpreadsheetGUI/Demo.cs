@@ -31,12 +31,11 @@ namespace SS
         private SS.AbstractSpreadsheet ss;
         private SS.SpreadsheetClient model;
         private bool beingEdited = false;
-        private bool connected = false;
         private String IPAddress = "155.98.111.51";
         private int port = 1984;
         private int index = 0;
 
-        private List<String> lines;
+        private List<String> lines = new List<String>();
 
         private SS.Form2 connectForm;
 
@@ -57,8 +56,8 @@ namespace SS
             model = new SpreadsheetClient();
             model.IncomingLineEvent += MessageReceived;
 
-            // Disable undo.
-            undoToolStripMenuItem.Enabled = false;
+            saveSessionToolStripMenuItem.Enabled = false;
+            undoLastToolStripMenuItem.Enabled = false;
             leaveSessionToolStripMenuItem.Enabled = false;
         }
 
@@ -95,8 +94,8 @@ namespace SS
             model = new SpreadsheetClient();
             model.IncomingLineEvent += MessageReceived;
 
-            // Disable undo.
-            undoToolStripMenuItem.Enabled = false;
+            saveSessionToolStripMenuItem.Enabled = false;
+            undoLastToolStripMenuItem.Enabled = false;
             leaveSessionToolStripMenuItem.Enabled = false;
         }
 
@@ -266,17 +265,37 @@ namespace SS
             MessageBox.Show(message, "How To");
         }
 
-        private void toExistingToolStripMenuItem_Click(object sender, EventArgs e)
+        private void createSessionToolStripMenuItem_Click(object sender, EventArgs e)
         {
             connectForm = new Form2(this);
+            connectForm.setMessage("create");
+            connectForm.setButtonText("Create");
             connectForm.Show();
+        }
+
+        private void joinExistingToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            connectForm = new Form2(this);
+            connectForm.setMessage("join");
+            connectForm.setButtonText("Join");
+            connectForm.Show();
+        }
+
+        private void saveSessionToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            model.SendMessage("SAVE\nName:someName\n");
         }
 
         private void leaveSessionToolStripMenuItem_Click(object sender, EventArgs e)
         {
             ErrorBox.Text = "Disconnected from server.";
             model.Disconnect();
-            undoToolStripMenuItem.Enabled = false;
+
+            createSessionToolStripMenuItem.Enabled = true;
+            joinExistingToolStripMenuItem.Enabled = true;
+            saveSessionToolStripMenuItem.Enabled = false;
+            undoLastToolStripMenuItem.Enabled = false;
+            leaveSessionToolStripMenuItem.Enabled = false;
         }
 
         /// <summary>
@@ -344,8 +363,6 @@ namespace SS
                     spreadsheetPanel1.GetValue(col, row, out value); // Changes the GUI cell to reflect the changes to the spreadsheet logic.
                     spreadsheetPanel1.SetValue(col, row - 1, ss.GetCellValue(cell).ToString());
                 }
-
-                if (connected) undoToolStripMenuItem.Enabled = true;
             }
             catch (Exception c) // Catches any exceptions thrown and displays a specific message in the error box.
             {
@@ -504,13 +521,11 @@ namespace SS
             { 
                 model.Connect(IPAddress, port);
                 ErrorBox.Text = "Established connection with the host server.";
-                model.SendMessage("JOIN");
-                model.SendMessage("Name:" + name);
-                model.SendMessage("Password:" + pass);
+                model.SendMessage("JOIN\nName:" + name + "\nPassword:" + pass + "\n");
 
-                connected = true;
-
-                toExistingToolStripMenuItem.Enabled = false;
+                createSessionToolStripMenuItem.Enabled = false;
+                joinExistingToolStripMenuItem.Enabled = false;
+                saveSessionToolStripMenuItem.Enabled = true;
                 leaveSessionToolStripMenuItem.Enabled = true;
             }
             catch (Exception e) 

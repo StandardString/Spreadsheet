@@ -12,18 +12,20 @@ namespace SS
     public partial class Form2 : Form
     {
         Form1 context;
+        private delegate void Callback(String name, String password);
+        Callback cb;
 
         public Form2(Form1 primaryForm)
         {
             InitializeComponent();
+            context = primaryForm;
 
-            this.context = primaryForm;
             NameBox.Text = "name";
             PasswordBox.Text = "password";
-            ConnectButton.Enabled = true;
+            GoButton.Enabled = true;
         }
 
-        private void ConnectButton_Click(object sender, EventArgs e)
+        private void GoButton_Click(object sender, EventArgs e)
         {
             String name = NameBox.Text.ToString();
             String password = PasswordBox.Text.ToString();
@@ -52,9 +54,25 @@ namespace SS
             String name = NameBox.Text.Trim();
             String password = PasswordBox.Text.Trim();
             if (name != "" && password != "")
-                ConnectButton.Enabled = true;
+                GoButton.Enabled = true;
             else
-                ConnectButton.Enabled = false;
+                GoButton.Enabled = false;
         }
+
+        public void setMessage(String message)
+        {
+            String s = "Please enter the name and password of the spreadsheet you wish to ";
+            MessageLabel.Text = s + message + ".";
+        }
+
+        public void setButtonText(String text)
+        {
+            GoButton.Text = text;
+        }
+
+        //public void setCallback(Callback callback)
+        //{
+        //    cb = callback;
+        //}
     }
 }
