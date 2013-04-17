@@ -30,8 +30,8 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form2));
             this.ConnectButton = new System.Windows.Forms.Button();
-            this.UsernameBox = new System.Windows.Forms.TextBox();
-            this.UserLabel = new System.Windows.Forms.Label();
+            this.NameBox = new System.Windows.Forms.TextBox();
+            this.NameLabel = new System.Windows.Forms.Label();
             this.PassLabel = new System.Windows.Forms.Label();
             this.PasswordBox = new System.Windows.Forms.TextBox();
             this.CancelButton = new System.Windows.Forms.Button();
@@ -47,22 +47,22 @@
             this.ConnectButton.UseVisualStyleBackColor = true;
             this.ConnectButton.Click += new System.EventHandler(this.ConnectButton_Click);
             // 
-            // UsernameBox
+            // NameBox
             // 
-            this.UsernameBox.Location = new System.Drawing.Point(77, 26);
-            this.UsernameBox.Name = "UsernameBox";
-            this.UsernameBox.Size = new System.Drawing.Size(164, 20);
-            this.UsernameBox.TabIndex = 1;
-            this.UsernameBox.TextChanged += new System.EventHandler(this.UsernameBox_TextChanged);
+            this.NameBox.Location = new System.Drawing.Point(77, 26);
+            this.NameBox.Name = "NameBox";
+            this.NameBox.Size = new System.Drawing.Size(164, 20);
+            this.NameBox.TabIndex = 1;
+            this.NameBox.TextChanged += new System.EventHandler(this.UsernameBox_TextChanged);
             // 
-            // UserLabel
+            // NameLabel
             // 
-            this.UserLabel.AutoSize = true;
-            this.UserLabel.Location = new System.Drawing.Point(13, 29);
-            this.UserLabel.Name = "UserLabel";
-            this.UserLabel.Size = new System.Drawing.Size(58, 13);
-            this.UserLabel.TabIndex = 2;
-            this.UserLabel.Text = "Username:";
+            this.NameLabel.AutoSize = true;
+            this.NameLabel.Location = new System.Drawing.Point(13, 29);
+            this.NameLabel.Name = "NameLabel";
+            this.NameLabel.Size = new System.Drawing.Size(38, 13);
+            this.NameLabel.TabIndex = 2;
+            this.NameLabel.Text = "Name:";
             // 
             // PassLabel
             // 
@@ -99,8 +99,8 @@
             this.Controls.Add(this.CancelButton);
             this.Controls.Add(this.PasswordBox);
             this.Controls.Add(this.PassLabel);
-            this.Controls.Add(this.UserLabel);
-            this.Controls.Add(this.UsernameBox);
+            this.Controls.Add(this.NameLabel);
+            this.Controls.Add(this.NameBox);
             this.Controls.Add(this.ConnectButton);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Location = new System.Drawing.Point(100, 100);
@@ -116,8 +116,8 @@
         #endregion
 
         private System.Windows.Forms.Button ConnectButton;
-        private System.Windows.Forms.TextBox UsernameBox;
-        private System.Windows.Forms.Label UserLabel;
+        private System.Windows.Forms.TextBox NameBox;
+        private System.Windows.Forms.Label NameLabel;
         private System.Windows.Forms.Label PassLabel;
         private System.Windows.Forms.TextBox PasswordBox;
         private System.Windows.Forms.Button CancelButton;

@@ -18,16 +18,16 @@ namespace SS
             InitializeComponent();
 
             this.context = primaryForm;
-            UsernameBox.Text = "admin";
-            PasswordBox.Text = "admin";
+            NameBox.Text = "name";
+            PasswordBox.Text = "password";
             ConnectButton.Enabled = true;
         }
 
         private void ConnectButton_Click(object sender, EventArgs e)
         {
-            String username = UsernameBox.Text.ToString();
+            String name = NameBox.Text.ToString();
             String password = PasswordBox.Text.ToString();
-            context.connect(username, password);
+            context.connect(name, password);
 
             this.Close();
         }
@@ -39,19 +39,19 @@ namespace SS
 
         private void UsernameBox_TextChanged(object sender, EventArgs e)
         {
-            String username = UsernameBox.Text.Trim();
-            String password = PasswordBox.Text.Trim();
-            if (username != "" && password != "")
-                ConnectButton.Enabled = true;
-            else
-                ConnectButton.Enabled = false;
+            checkBoxContent();
         }
 
         private void PasswordBox_TextChanged(object sender, EventArgs e)
         {
-            String username = UsernameBox.Text.Trim();
+            checkBoxContent();
+        }
+
+        private void checkBoxContent()
+        {
+            String name = NameBox.Text.Trim();
             String password = PasswordBox.Text.Trim();
-            if (username != "" && password != "")
+            if (name != "" && password != "")
                 ConnectButton.Enabled = true;
             else
                 ConnectButton.Enabled = false;

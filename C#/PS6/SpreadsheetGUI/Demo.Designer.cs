@@ -39,6 +39,7 @@
             this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.toExistingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.leaveSessionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.howToUseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -50,7 +51,8 @@
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.ErrorBox = new System.Windows.Forms.TextBox();
-            this.leaveSessionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.undoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -71,6 +73,7 @@
             this.menuStrip1.BackColor = System.Drawing.SystemColors.ActiveCaption;
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
+            this.editToolStripMenuItem,
             this.toolStripMenuItem1,
             this.helpToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
@@ -142,9 +145,16 @@
             // toExistingToolStripMenuItem
             // 
             this.toExistingToolStripMenuItem.Name = "toExistingToolStripMenuItem";
-            this.toExistingToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.toExistingToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
             this.toExistingToolStripMenuItem.Text = "To Existing";
             this.toExistingToolStripMenuItem.Click += new System.EventHandler(this.toExistingToolStripMenuItem_Click);
+            // 
+            // leaveSessionToolStripMenuItem
+            // 
+            this.leaveSessionToolStripMenuItem.Name = "leaveSessionToolStripMenuItem";
+            this.leaveSessionToolStripMenuItem.Size = new System.Drawing.Size(146, 22);
+            this.leaveSessionToolStripMenuItem.Text = "Leave Session";
+            this.leaveSessionToolStripMenuItem.Click += new System.EventHandler(this.leaveSessionToolStripMenuItem_Click);
             // 
             // helpToolStripMenuItem
             // 
@@ -234,12 +244,22 @@
             this.ErrorBox.Size = new System.Drawing.Size(303, 20);
             this.ErrorBox.TabIndex = 9;
             // 
-            // leaveSessionToolStripMenuItem
+            // editToolStripMenuItem
             // 
-            this.leaveSessionToolStripMenuItem.Name = "leaveSessionToolStripMenuItem";
-            this.leaveSessionToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.leaveSessionToolStripMenuItem.Text = "Leave Session";
-            this.leaveSessionToolStripMenuItem.Click += new System.EventHandler(this.leaveSessionToolStripMenuItem_Click);
+            this.editToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.undoToolStripMenuItem});
+            this.editToolStripMenuItem.Name = "editToolStripMenuItem";
+            this.editToolStripMenuItem.Size = new System.Drawing.Size(39, 20);
+            this.editToolStripMenuItem.Text = "Edit";
+            // 
+            // undoToolStripMenuItem
+            // 
+            this.undoToolStripMenuItem.Name = "undoToolStripMenuItem";
+            this.undoToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl + Z";
+            this.undoToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Z)));
+            this.undoToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.undoToolStripMenuItem.Text = "Undo";
+            this.undoToolStripMenuItem.Click += new System.EventHandler(this.undoToolStripMenuItem_Click);
             // 
             // Form1
             // 
@@ -290,6 +310,8 @@
         private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem toExistingToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem leaveSessionToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem undoToolStripMenuItem;
 
 
 

@@ -18,7 +18,7 @@ namespace SS
             socket = null;
         }
 
-        public void Connect(string hostname, int port, String name)
+        public void Connect(string hostname, int port)
         {
             try
             {
@@ -26,7 +26,6 @@ namespace SS
                 {
                     TcpClient client = new TcpClient(hostname, port);
                     socket = new StringSocket(client.Client, UTF8Encoding.Default);
-                    socket.BeginSend(name + "\n", (e, p) => { }, null);
                     socket.BeginReceive(LineReceived, null);
                 }
             }

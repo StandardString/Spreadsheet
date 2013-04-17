@@ -31,6 +31,7 @@ namespace SS
         private SS.AbstractSpreadsheet ss;
         private SS.SpreadsheetClient model;
         private bool beingEdited = false;
+        private bool connected = false;
         private String IPAddress = "155.98.111.51";
         private int port = 1984;
         private int index = 0;
@@ -55,6 +56,10 @@ namespace SS
 
             model = new SpreadsheetClient();
             model.IncomingLineEvent += MessageReceived;
+
+            // Disable undo.
+            undoToolStripMenuItem.Enabled = false;
+            leaveSessionToolStripMenuItem.Enabled = false;
         }
 
         /// <summary>
@@ -89,6 +94,10 @@ namespace SS
 
             model = new SpreadsheetClient();
             model.IncomingLineEvent += MessageReceived;
+
+            // Disable undo.
+            undoToolStripMenuItem.Enabled = false;
+            leaveSessionToolStripMenuItem.Enabled = false;
         }
 
         /// <summary>
@@ -104,6 +113,8 @@ namespace SS
             // Sets focus to the cell content box.
             ContentBox.Focus();
         }
+
+        // FORM METHODS
 
         /// <summary>
         /// Handles the "New" menu item listed under File.
@@ -200,6 +211,109 @@ namespace SS
         }
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void undoToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            model.SendMessage("UNDO");
+            model.SendMessage("Name:someName");
+            model.SendMessage("Version:someVersion");
+
+            saveToolStripMenuItem.Enabled = true;
+        }
+
+        /// <summary>
+        /// Handles the "About" menu item listed under Help.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // Creates a message to display in the "About" message box.
+            string message = "Spreadsheet Application - v1.3.007";
+            message += "\nLast Revision: 4/15/2013";
+            message += "\n";
+            message += "\nWritten by Bryan K. Smith for CS 3500";
+            message += "\nModified by Bryan K. Smith for CS 3505";
+            MessageBox.Show(message, "About");
+        }
+
+        /// <summary>
+        /// Handles the "How To" menu item listed under Help.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void howToUseToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // Creates a message to display in the "How To" message box.
+            string message = "How To Use the Program:";
+            message += "\n";
+            message += "\nNAVIGATION";
+            message += "\n  -  You can navigate around the cells with the arrow keys, or by clicking on a cell";
+            message += "\n     with the mouse.";
+            message += "\n";
+            message += "\nINPUTTING";
+            message += "\n  -  You can enter cell formula values by typing on the keyboard after selecting a";
+            message += "\n     cell or click directly on the formula (FX) box at the top of the application";
+            message += "\n     window.";
+            message += "\n";
+            message += "\nDELETING";
+            message += "\n  -  To delete while you're typing the contents of a cell, simply press either the";
+            message += "\n     backspace or delete keys. Pressing delete or backspace after selecting a cell";
+            message += "\n     will delete the entire contents of the cell.";
+            MessageBox.Show(message, "How To");
+        }
+
+        private void toExistingToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            connectForm = new Form2(this);
+            connectForm.Show();
+        }
+
+        private void leaveSessionToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ErrorBox.Text = "Disconnected from server.";
+            model.Disconnect();
+            undoToolStripMenuItem.Enabled = false;
+        }
+
+        /// <summary>
+        /// Handles the event where the user closes the spreadsheet form window.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (ss.Changed == true) // If the spreadsheet has been altered since the last time it was created or saved,
+            {
+                DialogResult result = new DialogResult(); // Creates a message box that asks the user if they want to save before closing.
+                result = MessageBox.Show("Do you want to save the spreadsheet before closing?", "Close", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning);
+                if (result.ToString().Equals("Yes"))      // If the response is yes, runs "Save As."
+                {
+                    saveAsToolStripMenuItem_Click(sender, e);
+                    model.Disconnect();
+                    e.Cancel = false;
+                }
+                else if (result.ToString().Equals("No"))  // If the response is no, closes the window.
+                {
+                    model.Disconnect();
+                    e.Cancel = false;
+                }
+                else                                      // Otherwise the window does nothing and the prompt closes.
+                    e.Cancel = true;
+            }
+            else   // If the spreadsheet hasn't been altered, the window closes.
+            {
+                model.Disconnect();
+                e.Cancel = false;
+            }
+        }
+
+        // BOX METHODS
+
+        /// <summary>
         /// A method that handles the event where the text inside the content box is changed.
         /// </summary>
         /// <param name="sender"></param>
@@ -230,31 +344,14 @@ namespace SS
                     spreadsheetPanel1.GetValue(col, row, out value); // Changes the GUI cell to reflect the changes to the spreadsheet logic.
                     spreadsheetPanel1.SetValue(col, row - 1, ss.GetCellValue(cell).ToString());
                 }
+
+                if (connected) undoToolStripMenuItem.Enabled = true;
             }
             catch (Exception c) // Catches any exceptions thrown and displays a specific message in the error box.
             {
                 string report = c.Message;
                 ErrorBox.Text = report;
             }
-        }
-
-        private void MessageReceived(String line)
-        {
-            if (!line.StartsWith("System.Net") || line == "")
-            {
-                spreadsheetPanel1.SetValue(9, index, line);
-                index++;
-            }
-
-            // If current line begins a command.
-            // Clear lines.
-
-            lines.Add(line);
-
-            // If first line starts with "SOME TAG" and lines.size()
-            // == command size
-            // Go do command with lines.
-            // Clear lines.
         }
 
         /// <summary>
@@ -310,134 +407,6 @@ namespace SS
         }
 
         /// <summary>
-        /// A helper method that converts the a letter character into a number.
-        /// </summary>
-        /// <param name="letter"></param>
-        /// <returns></returns>
-        private int ConvertLetterToNumber(char letter)
-        {
-            string list = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-            int number = -1;
-            for (int i = 0; i < 26; i++) // Iterates through the alphabet.
-            {
-                if (list[i] == letter)   // If the character at the index matches the input letter, 
-                    number = i;          // the index is stored in a temporary variable
-            }
-            return number;  // Returns the number.
-        }
-
-        /// <summary>
-        /// A helper method that updates the text boxes of the GUI. 
-        /// </summary>
-        /// <param name="col"></param>
-        /// <param name="row"></param>
-        private void updateBoxes(int col, int row)
-        {
-            // Converts the column and row into a cell name.
-            string name;
-            char column = (char)(col + 65);
-            name = column + (row + 1).ToString();
-            NameBox.Text = name; // Modifies the name box to display the cell name of the current selection.
-
-            // If the contents do not match the value, the content is treated as a Formula/FormulaError object.
-            if (ss.GetCellContents(NameBox.Text) != ss.GetCellValue(NameBox.Text))
-                ContentBox.Text = "=" + ss.GetCellContents(NameBox.Text).ToString(); // Appends an "=" to the beginning of the content string.
-            else // Otherwise, the content box is updated to display the content of the current selection.
-                ContentBox.Text = ss.GetCellContents(NameBox.Text).ToString();
-            ValueBox.Text = ss.GetCellValue(NameBox.Text).ToString(); // Updates the value displayed for the current selection.
-
-            ErrorBox.Clear();
-
-            beingEdited = false; // Records that the current selection is no longer being edited.
-        }
-
-        /// <summary>
-        /// Handles the event where the user closes the spreadsheet form window.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            if (ss.Changed == true) // If the spreadsheet has been altered since the last time it was created or saved,
-            {
-                DialogResult result = new DialogResult(); // Creates a message box that asks the user if they want to save before closing.
-                result = MessageBox.Show("Do you want to save the spreadsheet before closing?", "Close", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Warning);
-                if (result.ToString().Equals("Yes"))      // If the response is yes, runs "Save As."
-                {
-                    saveAsToolStripMenuItem_Click(sender, e);
-                    model.Disconnect();
-                    e.Cancel = false;
-                }
-                else if (result.ToString().Equals("No"))  // If the response is no, closes the window.
-                {
-                    model.Disconnect();
-                    e.Cancel = false;
-                }
-                else                                      // Otherwise the window does nothing and the prompt closes.
-                    e.Cancel = true;
-            }
-            else   // If the spreadsheet hasn't been altered, the window closes.
-            {
-                model.Disconnect();
-                e.Cancel = false;
-            }
-        }
-
-        /// <summary>
-        /// Handles the "About" menu item listed under Help.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            // Creates a message to display in the "About" message box.
-            string message = "Spreadsheet Application - v1.3.007";
-            message += "\nLast Revision: 4/15/2013";
-            message += "\n";
-            message += "\nWritten by Bryan K. Smith for CS 3500";
-            message += "\nModified by Bryan K. Smith for CS 3505";
-            MessageBox.Show(message, "About");
-        }
-
-        /// <summary>
-        /// Handles the "How To" menu item listed under Help.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void howToUseToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            // Creates a message to display in the "How To" message box.
-            string message = "How To Use the Program:";
-            message += "\n";
-            message += "\nNAVIGATION";
-            message += "\n  -  You can navigate around the cells with the arrow keys, or by clicking on a cell";
-            message += "\n     with the mouse.";
-            message += "\n";
-            message += "\nINPUTTING";
-            message += "\n  -  You can enter cell formula values by typing on the keyboard after selecting a";
-            message += "\n     cell or click directly on the formula (FX) box at the top of the application";
-            message += "\n     window.";
-            message += "\n";
-            message += "\nDELETING";
-            message += "\n  -  To delete while you're typing the contents of a cell, simply press either the";
-            message += "\n     backspace or delete keys. Pressing delete or backspace after selecting a cell";
-            message += "\n     will delete the entire contents of the cell.";
-            MessageBox.Show(message, "How To");
-        }
-
-        private void toExistingToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            connectForm = new Form2(this);
-            connectForm.Show();
-        }
-
-        private void leaveSessionToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            ErrorBox.Text = "Disconnected from server.";
-            model.Disconnect();
-        }
-
-        /// <summary>
         /// A helper function that enables the user to select keys using the Name textbox.
         /// Goes against the specification designated by the instructor, as the name textbox was
         /// supposed to be implemented as a read-only display.
@@ -483,19 +452,140 @@ namespace SS
             }
         }
 
-        public void connect(String user, String pass)
+        // HELPER METHODS
+
+        /// <summary>
+        /// A helper method that converts the a letter character into a number.
+        /// </summary>
+        /// <param name="letter"></param>
+        /// <returns></returns>
+        private int ConvertLetterToNumber(char letter)
+        {
+            string list = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            int number = -1;
+            for (int i = 0; i < 26; i++) // Iterates through the alphabet.
+            {
+                if (list[i] == letter)   // If the character at the index matches the input letter, 
+                    number = i;          // the index is stored in a temporary variable
+            }
+            return number;  // Returns the number.
+        }
+
+        /// <summary>
+        /// A helper method that updates the text boxes of the GUI. 
+        /// </summary>
+        /// <param name="col"></param>
+        /// <param name="row"></param>
+        private void updateBoxes(int col, int row)
+        {
+            // Converts the column and row into a cell name.
+            string name;
+            char column = (char)(col + 65);
+            name = column + (row + 1).ToString();
+            NameBox.Text = name; // Modifies the name box to display the cell name of the current selection.
+
+            // If the contents do not match the value, the content is treated as a Formula/FormulaError object.
+            if (ss.GetCellContents(NameBox.Text) != ss.GetCellValue(NameBox.Text))
+                ContentBox.Text = "=" + ss.GetCellContents(NameBox.Text).ToString(); // Appends an "=" to the beginning of the content string.
+            else // Otherwise, the content box is updated to display the content of the current selection.
+                ContentBox.Text = ss.GetCellContents(NameBox.Text).ToString();
+            ValueBox.Text = ss.GetCellValue(NameBox.Text).ToString(); // Updates the value displayed for the current selection.
+
+            ErrorBox.Clear();
+
+            beingEdited = false; // Records that the current selection is no longer being edited.
+        }
+
+        public void connect(String name, String pass)
         {
             ErrorBox.Text = "Attempting to connect to server...";
 
             try 
             { 
-                model.Connect(IPAddress, port, "Bob Kessler");
+                model.Connect(IPAddress, port);
                 ErrorBox.Text = "Established connection with the host server.";
+                model.SendMessage("JOIN");
+                model.SendMessage("Name:" + name);
+                model.SendMessage("Password:" + pass);
+
+                connected = true;
+
+                toExistingToolStripMenuItem.Enabled = false;
+                leaveSessionToolStripMenuItem.Enabled = true;
             }
             catch (Exception e) 
             {
-                ErrorBox.Text = "Failed to connect to host server: ";
-                ErrorBox.Text += e.Message.ToString();
+                ErrorBox.Text = e.Message.ToString();
+            }
+        }
+
+        private void MessageReceived(String line)
+        {
+            if (!line.StartsWith("System.Net") || line == "")
+            {
+                spreadsheetPanel1.SetValue(9, index, line);
+                index++;
+            }
+
+            lines.Add(line);
+            String first = lines[0];
+
+            // If first line starts with "SOME TAG" and lines.size() is command size
+            if (first.StartsWith("CREATE OK") && lines.Count() == 3)
+            {
+                // Do something.
+            }
+            else if (first.StartsWith("CREATE FAIL") && lines.Count() == 3)
+            {
+                // Do something.
+            }
+            else if (first.StartsWith("JOIN OK") && lines.Count() == 5)
+            {
+                // Do something.
+            }
+            else if (first.StartsWith("JOIN FAIL") && lines.Count() == 3)
+            {
+                // Do something.
+            }
+            else if (first.StartsWith("CHANGE OK") && lines.Count() == 3)
+            {
+                // Do something.
+            }
+            else if (first.StartsWith("CHANGE FAIL") && lines.Count() == 3)
+            {
+                // Do something.
+            }
+            else if (first.StartsWith("UNDO OK") && lines.Count() == 3)
+            {
+                // Do something.
+            }
+            else if (first.StartsWith("UNDO END") && lines.Count() == 3)
+            {
+                // Do something.
+            }
+            else if (first.StartsWith("UNDO WAIT") && lines.Count() == 3)
+            {
+                // Do something.
+            }
+            else if (first.StartsWith("UNDO FAIL") && lines.Count() == 3)
+            {
+                // Do something.
+            }
+            else if (first.StartsWith("UPDATE") && lines.Count() == 6)
+            {
+                // Do something.
+            }
+            else if (first.StartsWith("SAVE OK") && lines.Count() == 2)
+            {
+                // Do something.
+            }
+            else if (first.StartsWith("SAVE FAIL") && lines.Count() == 3)
+            {
+                // Do something.
+            }
+            else if (first.StartsWith("ERROR") && lines.Count() == 1)
+            {
+                // Do something.
             }
         }
     }
