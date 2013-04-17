@@ -105,6 +105,8 @@ private:
       std::string msg = "WELCOME TO SERVER LAND \n";
       connected.add_socket(&incoming);
       connected.broadcast(msg);
+      msg = "BJFLDJFKLDJSAF \n";
+      connected.broadcast(msg);
       std::cout << "IN NO ERROR" << std::endl;
       // new_connection->start();
       start_accept();
