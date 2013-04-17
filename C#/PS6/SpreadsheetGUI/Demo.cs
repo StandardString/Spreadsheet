@@ -33,6 +33,9 @@ namespace SS
         private bool beingEdited = false;
         private String IPAddress = "155.98.111.51";
         private int port = 1984;
+        private int index = 0;
+
+        private List<String> lines;
 
         private SS.Form2 connectForm;
 
@@ -237,8 +240,21 @@ namespace SS
 
         private void MessageReceived(String line)
         {
-            if (!line.StartsWith("System.Net"))
-                ErrorBox.Invoke(new Action(() => { ErrorBox.Text = line; }));
+            if (!line.StartsWith("System.Net") || line == "")
+            {
+                spreadsheetPanel1.SetValue(9, index, line);
+                index++;
+            }
+
+            // If current line begins a command.
+            // Clear lines.
+
+            lines.Add(line);
+
+            // If first line starts with "SOME TAG" and lines.size()
+            // == command size
+            // Go do command with lines.
+            // Clear lines.
         }
 
         /// <summary>
