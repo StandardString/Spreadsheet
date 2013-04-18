@@ -23,9 +23,9 @@ spreadsheet::spreadsheet()
  * Constructs a spreadsheet with data in its cells
  * described by the file.
  */
-spreadsheet::spreadsheet(std::ifstream &file)
+spreadsheet::spreadsheet(std::string &filename)
 {
-   populate_cells(file);
+   populate_cells(filename);
 }
 
 spreadsheet::~spreadsheet()
@@ -76,9 +76,11 @@ void spreadsheet::populate_cells()
  * Modifications to the spreadsheet are guaranteed not to begin before
  * the cells have been populated.
  */
-void spreadsheet::populate_cells(std::ifstream &file)
+void spreadsheet::populate_cells(std::string &filename)
 {
    boost::lock_guard<boost::mutex> lock(this->mutex);
+   std::ifstream file(filename.c_str());
+
    if (file.is_open())
    {
       while (file.good())
@@ -134,9 +136,13 @@ bool spreadsheet::attempt_modify(std::string &cell, std::string &value, int vnum
  * spreadsheet. Returns true and increments the version number
  * if it succeeded, returns false otherwise.
  *
+ * The pointers cellname and cellvalue will contain the
+ * new cell values after the undo has completed.
+ *
  * This method is threadsafe.
  */
-bool spreadsheet::attempt_undo(int vnum)
+bool spreadsheet::attempt_undo(int vnum, std::string *cellname, 
+			       std::string *cellvalue)
 {
 
    boost::lock_guard<boost::mutex> lock(this->mutex);
@@ -147,6 +153,8 @@ bool spreadsheet::attempt_undo(int vnum)
    undo_cmd cmd = this->undo_stack.top();
 
    this->cells[cmd.cell] = cmd.value;
+   *cellname = cmd.cell;
+   *cellvalue = cmd.value;
    this->increment_version();
 
    this->undo_stack.pop();
@@ -196,5 +204,42 @@ void spreadsheet::save(std::string filename)
    while (!this->undo_stack.empty())
       this->undo_stack.pop();
    
+
+}
+
+/*
+ * Converts the current spreadsheet to an xml string.
+ * This will block any changes to the spreadsheet until
+ * the completion of the to_xml() function call.
+ */
+std::string spreadsheet::to_xml()
+{
+   boost::lock_guard<boost::mutex> lock(this->mutex);
+
+   std::string result = "<?xml version=""1.0"" encoding=""utf-8""?>";
+   result += "<spreadsheet version=""ps6"">";
+
+   for (std::map<std::string, std::string>::iterator it = this->cells.begin();
+	   it != this->cells.end(); it++)
+   {
+      std::string cellname = it->first;
+      std::string contents = it->second;
+
+      if (contents == "")
+	 continue;
+
+      result += "<cell>";
+      result += "<name>";
+      result += cellname;
+      result += "</name>";
+      result += "<contents>";
+      result += contents;
+      result += "</contents>";
+      result += "</cell>";
+   }
+
+   result += "</spreadsheet>";
+
+   return result;
 
 }

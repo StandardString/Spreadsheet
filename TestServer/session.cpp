@@ -1,15 +1,35 @@
-
-
+/*
+ * Created by Owen Krafft, Austin Nester, Dickson Chiu, and Bryan Smith
+ * for CS 3505, April, 2013.
+ */
 #include <iostream>
+#include <fstream>
+#include "spreadsheet.h"
 #include "session.h"
+#include <boost/asio.hpp>
+#include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
 
+typedef boost::shared_ptr<boost::asio::ip::tcp::socket> socket_ptr;
+
 /*
- * Constructs an empty session.
+ * Constructs an empty session. The underlying spreadsheet
+ * is initialized with empty cells.
  */
-session::session()
+session::session() : ss()
 {
-   session::users = new std::set<boost::asio::ip::tcp::socket*>();
+   session::users = new std::set<socket_ptr>();
+}
+
+
+/*
+ * Constructs an empty session from the saved spreadsheet file
+ * denoted by filename.
+ */
+session::session(std::string &filename) : ss(filename)
+{
+   session::users = new std::set<socket_ptr>();
+   
 }
 
 /*
@@ -25,7 +45,7 @@ session::~session()
 /*
  * Adds a socket to this session.
  */
-void session::add_socket(boost::asio::ip::tcp::socket *user)
+void session::add_socket(socket_ptr user)
 {
    session::users->insert(user);
 }
@@ -33,7 +53,7 @@ void session::add_socket(boost::asio::ip::tcp::socket *user)
 /*
  * Removes a socket from this session.
  */
-void session::remove_socket(boost::asio::ip::tcp::socket *user)
+void session::remove_socket(socket_ptr user)
 {
    session::users->erase(user);
 }
@@ -41,7 +61,7 @@ void session::remove_socket(boost::asio::ip::tcp::socket *user)
 /*
  * Returns true if this session contains the socket.
  */
-bool session::contains_socket(boost::asio::ip::tcp::socket *user)
+bool session::contains_socket(socket_ptr user)
 {
    return (session::users->find(user) != session::users->end());
 }
@@ -65,12 +85,11 @@ void session::broadcast(std::string &msg)
    }
 
    void *d = data;
-   for (std::set<boost::asio::ip::tcp::socket*>::iterator it = session::users->begin(); 
+   for (std::set<socket_ptr>::iterator it = session::users->begin(); 
 	it != session::users->end(); it++)
    {
       
-      boost::asio::ip::tcp::socket &s = (*(*it));
-      //Fill in sending a message to everyone. Fuck if I can figure this out. ~Owen.
-      boost::asio::async_write(s, boost::asio::buffer(d, msg.size()), &handlesessionwrite);
+      socket_ptr s = *it;
+      boost::asio::async_write(*s, boost::asio::buffer(d, msg.size()), &handlesessionwrite);
    }
 }

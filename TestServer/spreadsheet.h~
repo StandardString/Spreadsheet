@@ -1,0 +1,37 @@
+#include <iostream>
+
+
+/*
+ * Defines a spreadsheet which tracks
+ * data held in cells. This is a server
+ * backend class and thus it does not do
+ * cell verification.
+ *
+ * Spreadsheets can receive requests to modify
+ * their contents. These requests must contain
+ * a version number matching the internal version
+ * number of the spreadsheet. If they do not match,
+ * the spreadsheet will not update.
+ */
+class spreadsheet
+{
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+};

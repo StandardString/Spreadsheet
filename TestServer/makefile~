@@ -1,0 +1,4 @@
+all: session.o
+
+session.o: session.cpp
+	g++ session.cpp -lboost_system -pthread

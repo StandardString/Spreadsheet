@@ -36,17 +36,19 @@ class spreadsheet
    std::stack< undo_cmd > undo_stack;
    int version;
    boost::mutex mutex;
-   void populate_cells(std::ifstream &file);
+   void populate_cells(std::string &filename);
    void populate_cells();
 
   public:
    spreadsheet();
-   spreadsheet(std::ifstream &file);
+   spreadsheet(std::string &filename);
    ~spreadsheet();
 
    bool attempt_modify(std::string &cell, std::string &value, int vnum);
-   bool attempt_undo(int vnum);
+   bool attempt_undo(int vnum, std::string *cellname, std::string *cellvalue);
    void increment_version();
+
+   std::string to_xml();
 
    void save(std::string filename);
 
