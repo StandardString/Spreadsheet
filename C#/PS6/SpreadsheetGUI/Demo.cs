@@ -15,6 +15,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using System.IO;
 
 namespace SS
 {
@@ -31,9 +32,12 @@ namespace SS
         private SS.AbstractSpreadsheet ss;
         private SS.SpreadsheetClient model;
         private bool beingEdited = false;
-        private String IPAddress = "155.98.111.51";
+        private String IPAddress = "lab1-13.eng.utah.edu";
         private int port = 1984;
         private int index = 0;
+
+        private String spreadsheetName = "Test";
+        private String version = "-1";
 
         private List<String> lines = new List<String>();
 
@@ -56,6 +60,8 @@ namespace SS
             model = new SpreadsheetClient();
             model.IncomingLineEvent += MessageReceived;
 
+            createSessionToolStripMenuItem.Enabled = false;
+            joinExistingToolStripMenuItem.Enabled = false;
             saveSessionToolStripMenuItem.Enabled = false;
             undoLastToolStripMenuItem.Enabled = false;
             leaveSessionToolStripMenuItem.Enabled = false;
@@ -94,6 +100,8 @@ namespace SS
             model = new SpreadsheetClient();
             model.IncomingLineEvent += MessageReceived;
 
+            createSessionToolStripMenuItem.Enabled = false;
+            joinExistingToolStripMenuItem.Enabled = false;
             saveSessionToolStripMenuItem.Enabled = false;
             undoLastToolStripMenuItem.Enabled = false;
             leaveSessionToolStripMenuItem.Enabled = false;
@@ -210,20 +218,6 @@ namespace SS
         }
 
         /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void undoToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            model.SendMessage("UNDO");
-            model.SendMessage("Name:someName");
-            model.SendMessage("Version:someVersion");
-
-            saveToolStripMenuItem.Enabled = true;
-        }
-
-        /// <summary>
         /// Handles the "About" menu item listed under Help.
         /// </summary>
         /// <param name="sender"></param>
@@ -265,11 +259,31 @@ namespace SS
             MessageBox.Show(message, "How To");
         }
 
+        private void connectToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ErrorBox.Text = "Attempting to establish connection to host server";
+
+            try
+            {
+                model.Connect(IPAddress, port);
+                ErrorBox.Text = "Established connection with the host server.";
+
+                connectToolStripMenuItem.Enabled = false;
+                createSessionToolStripMenuItem.Enabled = true;
+                joinExistingToolStripMenuItem.Enabled = true;
+            }
+            catch (Exception ex)
+            {
+                ErrorBox.Text = ex.Message.ToString();
+            }
+        }
+
         private void createSessionToolStripMenuItem_Click(object sender, EventArgs e)
         {
             connectForm = new Form2(this);
             connectForm.setMessage("create");
             connectForm.setButtonText("Create");
+            connectForm.setCallback(create);
             connectForm.Show();
         }
 
@@ -278,21 +292,38 @@ namespace SS
             connectForm = new Form2(this);
             connectForm.setMessage("join");
             connectForm.setButtonText("Join");
+            connectForm.setCallback(join);
             connectForm.Show();
         }
 
         private void saveSessionToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            model.SendMessage("SAVE\nName:someName\n");
+            String message = "SAVE\n";
+            message += "Name:" + spreadsheetName + "\n";
+            try { model.SendMessage(message); }
+            catch (Exception ex) { ErrorBox.Text = ex.Message.ToString(); }
+        }
+
+        private void undoLastToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            String message = "UNDO\n";
+            message += "Name:" + spreadsheetName + "\n";
+            message += "Version:" + version + "\n";
+            try { model.SendMessage(message); }
+            catch (Exception ex) { ErrorBox.Text = ex.Message.ToString(); }
         }
 
         private void leaveSessionToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            try { model.SendMessage("LEAVE\nName:" + spreadsheetName + "\n"); }
+            catch (Exception ex) { ErrorBox.Text = ex.Message.ToString(); }
+
             ErrorBox.Text = "Disconnected from server.";
             model.Disconnect();
 
-            createSessionToolStripMenuItem.Enabled = true;
-            joinExistingToolStripMenuItem.Enabled = true;
+            connectToolStripMenuItem.Enabled = true;
+            createSessionToolStripMenuItem.Enabled = false;
+            joinExistingToolStripMenuItem.Enabled = false;
             saveSessionToolStripMenuItem.Enabled = false;
             undoLastToolStripMenuItem.Enabled = false;
             leaveSessionToolStripMenuItem.Enabled = false;
@@ -513,24 +544,57 @@ namespace SS
             beingEdited = false; // Records that the current selection is no longer being edited.
         }
 
-        public void connect(String name, String pass)
+        public void create(String name, String pass)
         {
-            ErrorBox.Text = "Attempting to connect to server...";
+            try
+            {
+                String message = "CREATE\n";
+                message += "Name:" + name + "\n";
+                message += "Password:" + pass + "\n";
 
+                model.SendMessage(message);
+            }
+            catch (Exception e)
+            {
+                ErrorBox.Text = e.Message.ToString();
+            }
+        }
+
+        public void join(String name, String pass)
+        {
             try 
-            { 
-                model.Connect(IPAddress, port);
-                ErrorBox.Text = "Established connection with the host server.";
-                model.SendMessage("JOIN\nName:" + name + "\nPassword:" + pass + "\n");
+            {
+                String message = "JOIN\n";
+                message += "Name:" + name + "\n";
+                message += "Password:" + pass + "\n";
 
-                createSessionToolStripMenuItem.Enabled = false;
-                joinExistingToolStripMenuItem.Enabled = false;
-                saveSessionToolStripMenuItem.Enabled = true;
-                leaveSessionToolStripMenuItem.Enabled = true;
+                model.SendMessage(message);
             }
             catch (Exception e) 
             {
                 ErrorBox.Text = e.Message.ToString();
+            }
+        }
+
+        private void loadSpreadsheet(String filename)
+        {
+            int row, col;   // Establishes variables to store row and column information.
+            string value;   // Establishes a variable to contain the cell value.
+            try
+            {
+                ss = new Spreadsheet(filename, s => true, s => s.ToUpper(), "ps6");  // Initializes a new class level spreadsheet object from the filepath.
+                IEnumerable<string> ToUpdate = ss.GetNamesOfAllNonemptyCells();   // Initializes a IEnumberable to store all non-empty cells from the spreadsheet. 
+                foreach (string cell in ToUpdate)                    // For each cell in the enumerable...
+                {
+                    col = ConvertLetterToNumber(cell[0]);            // Convert the letter into a column coordinate.
+                    Int32.TryParse(cell.Substring(1), out row);      // Attempts to parse the rest of the cell name as the row.
+                    spreadsheetPanel1.GetValue(col, row, out value); // Changes the GUI cell to reflect the changes to the spreadsheet logic.
+                    spreadsheetPanel1.SetValue(col, row - 1, ss.GetCellValue(cell).ToString());
+                }
+            }
+            catch (Exception c)  // Catches any exceptions that are thrown and creates a message box to display it.
+            {
+                MessageBox.Show("Could not read file from disk. \n Original error: " + c.Message, "Open", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
@@ -548,59 +612,154 @@ namespace SS
             // If first line starts with "SOME TAG" and lines.size() is command size
             if (first.StartsWith("CREATE OK") && lines.Count() == 3)
             {
-                // Do something.
+                String name = lines[1].Substring(4, lines[1].Length - 1);
+
+                createSessionToolStripMenuItem.Enabled = false;
+                joinExistingToolStripMenuItem.Enabled = false;
+                saveSessionToolStripMenuItem.Enabled = true;
+                leaveSessionToolStripMenuItem.Enabled = true;
+
+                ErrorBox.Text = name + " successfully created.";
             }
             else if (first.StartsWith("CREATE FAIL") && lines.Count() == 3)
             {
-                // Do something.
+                String name = lines[1].Substring(4, lines[1].Length - 1);
+                String message = lines[2].Substring(0, lines[2].Length - 1);
+
+                ErrorBox.Text = name + " failed to create: " + message;
             }
             else if (first.StartsWith("JOIN OK") && lines.Count() == 5)
             {
-                // Do something.
+                spreadsheetName = lines[1].Substring(4, lines[1].Length - 1);
+                version = lines[2].Substring(7, lines[2].Length - 1);
+                String length = lines[3].Substring(6, lines[3].Length - 1);
+                String xml = lines[4].Substring(0, lines[4].Length - 1);
+
+                // Save xml into a temporary file.
+                String path = "temp.ss";
+                using (File.Create(path))
+                {
+                    TextWriter tw = new StreamWriter(path, true);
+                    tw.WriteLine(xml);
+                    tw.Close();
+                }
+                // Load the file into the spreadsheet.
+                loadSpreadsheet(path);
+                // Delete the file.
+                File.Delete(path);
+
+                createSessionToolStripMenuItem.Enabled = false;
+                joinExistingToolStripMenuItem.Enabled = false;
+                saveSessionToolStripMenuItem.Enabled = true;
+                leaveSessionToolStripMenuItem.Enabled = true;
+
+                ErrorBox.Text = "Successfully joined " + spreadsheetName;
+
+                lines.Clear();
             }
             else if (first.StartsWith("JOIN FAIL") && lines.Count() == 3)
             {
-                // Do something.
+                String name = lines[1].Substring(4, lines[1].Length - 1);
+                String message = lines[2].Substring(0, lines[2].Length - 1);
+
+                ErrorBox.Text = "Failed to join " + name + ": " + message;
+
+                lines.Clear();
             }
             else if (first.StartsWith("CHANGE OK") && lines.Count() == 3)
             {
-                // Do something.
+                String name = lines[1].Substring(4, lines[1].Length - 1);
+                version = lines[2].Substring(7, lines[2].Length - 1);
+
+                ErrorBox.Text = name + " was successfully modified.";
+
+                lines.Clear();
             }
             else if (first.StartsWith("CHANGE FAIL") && lines.Count() == 3)
             {
-                // Do something.
+                String name = lines[1].Substring(4, lines[1].Length - 1);
+                String message = lines[2].Substring(0, lines[2].Length - 1);
+
+                ErrorBox.Text =  name + " was unable to be modified: " + message;
+
+                lines.Clear();
             }
             else if (first.StartsWith("UNDO OK") && lines.Count() == 3)
             {
                 // Do something.
+                String name = lines[1].Substring(4, lines[1].Length - 1);
+                version = lines[2].Substring(7, lines[2].Length - 1);
+
+                ErrorBox.Text = "The last action of " + name + " was successfully undid.";
+
+                lines.Clear();
             }
             else if (first.StartsWith("UNDO END") && lines.Count() == 3)
             {
                 // Do something.
+                String name = lines[1].Substring(4, lines[1].Length - 1);
+                ErrorBox.Text = "There are no unsaved changes on " + name + ".";
+
+                lines.Clear();
             }
             else if (first.StartsWith("UNDO WAIT") && lines.Count() == 3)
             {
                 // Do something.
+                ErrorBox.Text = "Your version is out of date, please wait for an update.";
+
+                lines.Clear();
             }
             else if (first.StartsWith("UNDO FAIL") && lines.Count() == 3)
             {
                 // Do something.
+                String name = lines[1].Substring(4, lines[1].Length - 1);
+                String message = lines[2].Substring(0, lines[2].Length - 1);
+
+                ErrorBox.Text = name + " was unable to be undid: " + message;
+
+                lines.Clear();
             }
             else if (first.StartsWith("UPDATE") && lines.Count() == 6)
             {
                 // Do something.
+                String name = lines[1].Substring(4, lines[1].Length - 1);
+                version = lines[2].Substring(7, lines[2].Length - 1);
+                String cell = lines[3].Substring(4, lines[3].Length - 1);
+                String length = lines[4].Substring(6, lines[4].Length - 1);
+                String content = lines[5].Substring(0, lines[5].Length - 1);
+
+                // Update the cell and junk.
+
+
+                ErrorBox.Text = "Spreadsheet was successfully updated.";
+
+                lines.Clear();
             }
             else if (first.StartsWith("SAVE OK") && lines.Count() == 2)
             {
                 // Do something.
+                String name = lines[1].Substring(4, lines[1].Length - 1);
+
+                ErrorBox.Text = name + " was successfully saved.";
+
+                lines.Clear();
             }
             else if (first.StartsWith("SAVE FAIL") && lines.Count() == 3)
             {
                 // Do something.
+                String name = lines[1].Substring(4, lines[1].Length - 1);
+                String message = lines[2].Substring(0, lines[2].Length - 1);
+
+                ErrorBox.Text = name + " was unable to be saved: " + message;
+
+                lines.Clear();
             }
             else if (first.StartsWith("ERROR") && lines.Count() == 1)
             {
                 // Do something.
+                ErrorBox.Text = "Sum terbible erlor has acrued.";
+
+                lines.Clear();
             }
         }
     }

@@ -12,8 +12,8 @@ namespace SS
     public partial class Form2 : Form
     {
         Form1 context;
-        private delegate void Callback(String name, String password);
-        Callback cb;
+        public delegate void Callback(String name, String password);
+        private Callback cb;
 
         public Form2(Form1 primaryForm)
         {
@@ -29,7 +29,7 @@ namespace SS
         {
             String name = NameBox.Text.ToString();
             String password = PasswordBox.Text.ToString();
-            context.connect(name, password);
+            cb(name, password);
 
             this.Close();
         }
@@ -70,9 +70,9 @@ namespace SS
             GoButton.Text = text;
         }
 
-        //public void setCallback(Callback callback)
-        //{
-        //    cb = callback;
-        //}
+        public void setCallback(Callback callback)
+        {
+            cb = callback;
+        }
     }
 }

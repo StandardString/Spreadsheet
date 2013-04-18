@@ -54,6 +54,7 @@
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.ErrorBox = new System.Windows.Forms.TextBox();
+            this.connectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -136,6 +137,7 @@
             // serverToolStripMenuItem
             // 
             this.serverToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.connectToolStripMenuItem,
             this.createSessionToolStripMenuItem,
             this.joinExistingToolStripMenuItem,
             this.saveSessionToolStripMenuItem,
@@ -173,6 +175,7 @@
             this.undoLastToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Z)));
             this.undoLastToolStripMenuItem.Size = new System.Drawing.Size(174, 22);
             this.undoLastToolStripMenuItem.Text = "Undo Last";
+            this.undoLastToolStripMenuItem.Click += new System.EventHandler(this.undoLastToolStripMenuItem_Click);
             // 
             // leaveSessionToolStripMenuItem
             // 
@@ -269,6 +272,13 @@
             this.ErrorBox.Size = new System.Drawing.Size(303, 20);
             this.ErrorBox.TabIndex = 9;
             // 
+            // connectToolStripMenuItem
+            // 
+            this.connectToolStripMenuItem.Name = "connectToolStripMenuItem";
+            this.connectToolStripMenuItem.Size = new System.Drawing.Size(174, 22);
+            this.connectToolStripMenuItem.Text = "Connect";
+            this.connectToolStripMenuItem.Click += new System.EventHandler(this.connectToolStripMenuItem_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -321,6 +331,7 @@
         private System.Windows.Forms.ToolStripMenuItem createSessionToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem saveSessionToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem undoLastToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem connectToolStripMenuItem;
 
 
 
