@@ -21,21 +21,22 @@ public void stuff()
 		COMMAND LIST (->CLIENT)
 -----------------------------------------------------
 
-1. CREATE OK\n
+1. CREATE OK\n	
    Name:name\n
    Password:password\n
 
-2. CREATE FAIL\n
+
+2. CREATE FAIL\n	
    Name:name\n
    message\n
 
-3. JOIN OK\n
+3. JOIN OK\n	
    Name:name\n
    Version:version\n
    Length:length\n
    xml\n
 
-4. JOIN FAIL\n
+4. JOIN FAIL\n		
    Name:name\n
    message\n
 
@@ -83,27 +84,27 @@ public void stuff()
 		COMMAND LIST (->SERVER)
 -----------------------------------------------------
 
-1. CREATE\n
+1. CREATE\n		size:3
+   Name:name\n
+   Password:password\n
+   
+2. JOIN\n		size:3
    Name:name\n
    Password:password\n
 
-2. JOIN\n
-   Name:name\n
-   Password:password\n
-
-3. CHANGE\n
+3. CHANGE\n		size:6
    Name:name\n
    Version:version\n
    Cell:cell\n
    Length:length\n
    content\n
 
-4. UNDO\n
+4. UNDO\n		size:3
    Name:name\n
    Version:version\n
 
-5. SAVE\n
+5. SAVE\n		size:2
    Name:name\n
 
-6. LEAVE\n
+6. LEAVE\n		size:2
    Name:name\n
