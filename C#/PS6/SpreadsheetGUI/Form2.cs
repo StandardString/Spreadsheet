@@ -20,16 +20,14 @@ namespace SS
             InitializeComponent();
             context = primaryForm;
 
-            NameBox.Text = "name";
-            PasswordBox.Text = "password";
-            GoButton.Enabled = true;
+            GoButton.Enabled = false;
         }
 
         private void GoButton_Click(object sender, EventArgs e)
         {
-            String name = NameBox.Text.ToString();
-            String password = PasswordBox.Text.ToString();
-            cb(name, password);
+            String input1 = NameBox.Text.ToString();
+            String input2 = PasswordBox.Text.ToString();
+            cb(input1, input2);
 
             this.Close();
         }
@@ -39,14 +37,28 @@ namespace SS
             this.Close();
         }
 
-        private void UsernameBox_TextChanged(object sender, EventArgs e)
+        private void NameBox_TextChanged(object sender, EventArgs e)
         {
             checkBoxContent();
+        }
+
+        private void NameBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if ((e.KeyCode == Keys.Enter || e.KeyCode == Keys.Return) 
+                && GoButton.Enabled)
+                GoButton_Click(sender, e);
         }
 
         private void PasswordBox_TextChanged(object sender, EventArgs e)
         {
             checkBoxContent();
+        }
+
+        private void PasswordBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if ((e.KeyCode == Keys.Enter || e.KeyCode == Keys.Return)
+                && GoButton.Enabled)
+                GoButton_Click(sender, e);
         }
 
         private void checkBoxContent()
@@ -61,13 +73,25 @@ namespace SS
 
         public void setMessage(String message)
         {
-            String s = "Please enter the name and password of the spreadsheet you wish to ";
-            MessageLabel.Text = s + message + ".";
+            MessageLabel.Text = message;
         }
 
-        public void setButtonText(String text)
+        public void setLabels(String first, String second)
         {
-            GoButton.Text = text;
+            NameLabel.Text = first;
+            PassLabel.Text = second;
+        }
+
+        public void setButtonText(String first, String second)
+        {
+            GoButton.Text = first;
+            CancelButton.Text = second;
+        }
+
+        public void setDefaultInput(String first, String second)
+        {
+            NameBox.Text = first;
+            PasswordBox.Text = second;
         }
 
         public void setCallback(Callback callback)
