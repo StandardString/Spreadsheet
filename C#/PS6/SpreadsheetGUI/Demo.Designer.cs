@@ -44,6 +44,7 @@
             this.saveSessionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.undoLastToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.leaveSessionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.disconnectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.howToUseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -55,7 +56,6 @@
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.ErrorBox = new System.Windows.Forms.TextBox();
-            this.disconnectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -167,7 +167,7 @@
             // 
             this.joinExistingToolStripMenuItem.Name = "joinExistingToolStripMenuItem";
             this.joinExistingToolStripMenuItem.Size = new System.Drawing.Size(174, 22);
-            this.joinExistingToolStripMenuItem.Text = "Join Existing";
+            this.joinExistingToolStripMenuItem.Text = "Join Session";
             this.joinExistingToolStripMenuItem.Click += new System.EventHandler(this.joinExistingToolStripMenuItem_Click);
             // 
             // saveSessionToolStripMenuItem
@@ -192,6 +192,13 @@
             this.leaveSessionToolStripMenuItem.Size = new System.Drawing.Size(174, 22);
             this.leaveSessionToolStripMenuItem.Text = "Leave Session";
             this.leaveSessionToolStripMenuItem.Click += new System.EventHandler(this.leaveSessionToolStripMenuItem_Click);
+            // 
+            // disconnectToolStripMenuItem
+            // 
+            this.disconnectToolStripMenuItem.Name = "disconnectToolStripMenuItem";
+            this.disconnectToolStripMenuItem.Size = new System.Drawing.Size(174, 22);
+            this.disconnectToolStripMenuItem.Text = "Disconnect";
+            this.disconnectToolStripMenuItem.Click += new System.EventHandler(this.disconnectToolStripMenuItem_Click);
             // 
             // helpToolStripMenuItem
             // 
@@ -280,13 +287,6 @@
             this.ErrorBox.ReadOnly = true;
             this.ErrorBox.Size = new System.Drawing.Size(303, 20);
             this.ErrorBox.TabIndex = 9;
-            // 
-            // disconnectToolStripMenuItem
-            // 
-            this.disconnectToolStripMenuItem.Name = "disconnectToolStripMenuItem";
-            this.disconnectToolStripMenuItem.Size = new System.Drawing.Size(174, 22);
-            this.disconnectToolStripMenuItem.Text = "Disconnect";
-            this.disconnectToolStripMenuItem.Click += new System.EventHandler(this.disconnectToolStripMenuItem_Click);
             // 
             // Form1
             // 

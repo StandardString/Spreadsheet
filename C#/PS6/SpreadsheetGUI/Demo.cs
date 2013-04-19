@@ -222,7 +222,7 @@ namespace SS
         private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
         {
             // Creates a message to display in the "About" message box.
-            string message = "Spreadsheet Application - v1.3.007";
+            string message = "Spreadsheet Application - v1.3.025";
             message += "\nLast Revision: 4/15/2013";
             message += "\n";
             message += "\nWritten by Bryan K. Smith for CS 3500";
@@ -371,25 +371,8 @@ namespace SS
         private void disconnectToolStripMenuItem_Click(object sender, EventArgs e)
         {
             ErrorBox.Text = "Attempting to disconnect from the host server";
-
-            try
-            {
-                model.Disconnect();
-                ErrorBox.Text = "Successfully disconnected from the host server.";
-
-                connected = false;
-
-                connectToolStripMenuItem.Enabled = true;
-                createSessionToolStripMenuItem.Enabled = false;
-                joinExistingToolStripMenuItem.Enabled = false;
-                saveSessionToolStripMenuItem.Enabled = false;
-                undoLastToolStripMenuItem.Enabled = false;
-                leaveSessionToolStripMenuItem.Enabled = false;
-            }
-            catch (Exception ex)
-            {
-                ErrorBox.Text = ex.Message.ToString();
-            }
+            disconnect();
+            ErrorBox.Text = "Successfully disconnected from the host server.";
         }
 
         /// <summary>
@@ -663,6 +646,31 @@ namespace SS
         }
 
         /// <summary>
+        /// A helper method that disconnects the client model.
+        /// </summary>
+        private void disconnect()
+        {
+            try
+            {
+                model.Disconnect();
+
+                connected = false;
+
+                connectToolStripMenuItem.Enabled = true;
+                createSessionToolStripMenuItem.Enabled = false;
+                joinExistingToolStripMenuItem.Enabled = false;
+                saveSessionToolStripMenuItem.Enabled = false;
+                undoLastToolStripMenuItem.Enabled = false;
+                leaveSessionToolStripMenuItem.Enabled = false;
+                disconnectToolStripMenuItem.Enabled = false;
+            }
+            catch (Exception ex)
+            {
+                ErrorBox.Text = ex.Message.ToString();
+            }
+        }
+
+        /// <summary>
         /// A helper method that loads a spreadsheet from file.
         /// </summary>
         /// <param name="filename"></param>
@@ -697,7 +705,7 @@ namespace SS
         /// <param name="line"></param>
         private void MessageReceived(String line)
         {
-            if (!line.StartsWith("System.Net") || line == "")
+            if (!line.StartsWith("System.Net") || line != "")
             {
                 spreadsheetPanel1.SetValue(9, index, line);
                 index++;
@@ -716,14 +724,14 @@ namespace SS
                 saveSessionToolStripMenuItem.Enabled = true;
                 leaveSessionToolStripMenuItem.Enabled = true;
 
-                ErrorBox.Text = name + " successfully created.";
+                ErrorBox.Invoke(new Action(() => { ErrorBox.Text = name + " successfully created."; }));
             }
             else if (first.StartsWith("CREATE FAIL") && lines.Count() == 3)
             {
                 String name = lines[1].Substring(4, lines[1].Length - 1);
                 String message = lines[2].Substring(0, lines[2].Length - 1);
 
-                ErrorBox.Text = name + " failed to create: " + message;
+                ErrorBox.Invoke(new Action(() => { ErrorBox.Text = name + " failed to create: " + message; }));
             }
             else if (first.StartsWith("JOIN OK") && lines.Count() == 5)
             {
@@ -750,7 +758,7 @@ namespace SS
                 saveSessionToolStripMenuItem.Enabled = true;
                 leaveSessionToolStripMenuItem.Enabled = true;
 
-                ErrorBox.Text = "Successfully joined " + sessionName;
+                ErrorBox.Invoke(new Action(() => { ErrorBox.Text = "Successfully joined " + sessionName; }));
 
                 lines.Clear();
             }
@@ -759,7 +767,7 @@ namespace SS
                 String name = lines[1].Substring(4, lines[1].Length - 1);
                 String message = lines[2].Substring(0, lines[2].Length - 1);
 
-                ErrorBox.Text = "Failed to join " + name + ": " + message;
+                ErrorBox.Invoke(new Action(() => { ErrorBox.Text = "Failed to join " + name + ": " + message; }));
 
                 lines.Clear();
             }
@@ -768,7 +776,7 @@ namespace SS
                 String name = lines[1].Substring(4, lines[1].Length - 1);
                 version = lines[2].Substring(7, lines[2].Length - 1);
 
-                ErrorBox.Text = name + " was successfully modified.";
+                ErrorBox.Invoke(new Action(() => { ErrorBox.Text = name + " was successfully modified."; }));
 
                 lines.Clear();
             }
@@ -777,7 +785,7 @@ namespace SS
                 String name = lines[1].Substring(4, lines[1].Length - 1);
                 String message = lines[2].Substring(0, lines[2].Length - 1);
 
-                ErrorBox.Text =  name + " was unable to be modified: " + message;
+                ErrorBox.Invoke(new Action(() => { ErrorBox.Text = name + " was unable to be modified: " + message; }));
 
                 lines.Clear();
             }
@@ -787,7 +795,7 @@ namespace SS
                 String name = lines[1].Substring(4, lines[1].Length - 1);
                 version = lines[2].Substring(7, lines[2].Length - 1);
 
-                ErrorBox.Text = "The last action of " + name + " was successfully undid.";
+                ErrorBox.Invoke(new Action(() => { ErrorBox.Text = "The last action of " + name + " was successfully undid."; }));
 
                 lines.Clear();
             }
@@ -795,14 +803,14 @@ namespace SS
             {
                 // Do something.
                 String name = lines[1].Substring(4, lines[1].Length - 1);
-                ErrorBox.Text = "There are no unsaved changes on " + name + ".";
+                ErrorBox.Invoke(new Action(() => { ErrorBox.Text = "There are no unsaved changes on " + name + "."; }));
 
                 lines.Clear();
             }
             else if (first.StartsWith("UNDO WAIT") && lines.Count() == 3)
             {
                 // Do something.
-                ErrorBox.Text = "Your version is out of date, please wait for an update.";
+                ErrorBox.Invoke(new Action(() => { ErrorBox.Text = "Your version is out of date, please wait for an update."; }));
 
                 lines.Clear();
             }
@@ -812,7 +820,7 @@ namespace SS
                 String name = lines[1].Substring(4, lines[1].Length - 1);
                 String message = lines[2].Substring(0, lines[2].Length - 1);
 
-                ErrorBox.Text = name + " was unable to be undid: " + message;
+                ErrorBox.Invoke(new Action(() => { ErrorBox.Text = name + " was unable to be undid: " + message; }));
 
                 lines.Clear();
             }
@@ -852,7 +860,7 @@ namespace SS
                     ErrorBox.Text = report;
                 }
 
-                ErrorBox.Text = "Spreadsheet was successfully updated.";
+                ErrorBox.Invoke(new Action(() => { ErrorBox.Text = "Spreadsheet was successfully updated."; }));
 
                 lines.Clear();
             }
@@ -861,7 +869,7 @@ namespace SS
                 // Do something.
                 String name = lines[1].Substring(4, lines[1].Length - 1);
 
-                ErrorBox.Text = name + " was successfully saved.";
+                ErrorBox.Invoke(new Action(() => { ErrorBox.Text = name + " was successfully saved."; }));
 
                 lines.Clear();
             }
@@ -871,14 +879,14 @@ namespace SS
                 String name = lines[1].Substring(4, lines[1].Length - 1);
                 String message = lines[2].Substring(0, lines[2].Length - 1);
 
-                ErrorBox.Text = name + " was unable to be saved: " + message;
+                ErrorBox.Invoke(new Action(() => { ErrorBox.Text = name + " was unable to be saved: " + message; }));
 
                 lines.Clear();
             }
             else if (first.StartsWith("ERROR") && lines.Count() == 1)
             {
                 // Do something.
-                ErrorBox.Text = "Sum terbible erlor has acrued.";
+                ErrorBox.Invoke(new Action(() => { ErrorBox.Text = "Sum terbible erlor has acrued."; }));
 
                 lines.Clear();
             }
