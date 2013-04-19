@@ -5,10 +5,10 @@ client:
 	g++ -o client client.cpp -lboost_system -pthread
 
 server:
-	g++ -o server server.cpp session.cpp -lboost_system -pthread 
+	g++ -o server server.cpp session.cpp spreadsheet.cpp -lboost_system -pthread 
 
 both:
 	g++ -o client client.cpp -lboost_system -pthread 
-	g++ -o server server.cpp session.cpp -lboost_system -pthread
+	g++ -o server server.cpp session.cpp spreadsheet.cpp -lboost_system -pthread
 clean:
 	rm -f *.o client server
