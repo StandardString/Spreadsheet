@@ -699,6 +699,21 @@ namespace SS
         }
 
         /// <summary>
+        /// A helper function that retreives a substring a line at 
+        /// a specified starting location, and removes the trailing
+        /// newline character.
+        /// </summary>
+        /// <param name="line"></param>
+        /// <param name="start"></param>
+        /// <returns></returns>
+        private String extractLine(String line, int start)
+        {
+            string s = line.Substring(start);
+            s.Remove(s.Length - 1);
+            return s;
+        }
+
+        /// <summary>
         /// Perfoms an action on the client based on the string
         /// received.
         /// </summary>
@@ -717,7 +732,7 @@ namespace SS
             // If first line starts with "SOME TAG" and lines.size() is command size
             if (first.StartsWith("CREATE OK") && lines.Count() == 3)
             {
-                String name = lines[1].Substring(4, lines[1].Length - 1);
+                String name = extractLine(lines[1], 4);
 
                 createSessionToolStripMenuItem.Enabled = false;
                 joinExistingToolStripMenuItem.Enabled = false;
@@ -728,17 +743,17 @@ namespace SS
             }
             else if (first.StartsWith("CREATE FAIL") && lines.Count() == 3)
             {
-                String name = lines[1].Substring(4, lines[1].Length - 1);
-                String message = lines[2].Substring(0, lines[2].Length - 1);
+                String name = extractLine(lines[1], 4);
+                String message = extractLine(lines[2], 0);
 
                 ErrorBox.Invoke(new Action(() => { ErrorBox.Text = name + " failed to create: " + message; }));
             }
             else if (first.StartsWith("JOIN OK") && lines.Count() == 5)
             {
-                sessionName = lines[1].Substring(4, lines[1].Length - 1);
-                version = lines[2].Substring(7, lines[2].Length - 1);
-                String length = lines[3].Substring(6, lines[3].Length - 1);
-                String xml = lines[4].Substring(0, lines[4].Length - 1);
+                sessionName = extractLine(lines[1], 4);
+                version = extractLine(lines[2], 7);
+                String length = extractLine(lines[3], 6);
+                String xml = extractLine(lines[4], 0);
 
                 // Save xml into a temporary file.
                 String path = "temp.ss";
@@ -764,8 +779,8 @@ namespace SS
             }
             else if (first.StartsWith("JOIN FAIL") && lines.Count() == 3)
             {
-                String name = lines[1].Substring(4, lines[1].Length - 1);
-                String message = lines[2].Substring(0, lines[2].Length - 1);
+                String name = extractLine(lines[1], 4);
+                String message = extractLine(lines[2], 0);
 
                 ErrorBox.Invoke(new Action(() => { ErrorBox.Text = "Failed to join " + name + ": " + message; }));
 
@@ -773,8 +788,8 @@ namespace SS
             }
             else if (first.StartsWith("CHANGE OK") && lines.Count() == 3)
             {
-                String name = lines[1].Substring(4, lines[1].Length - 1);
-                version = lines[2].Substring(7, lines[2].Length - 1);
+                String name = extractLine(lines[1], 4);
+                version = extractLine(lines[2], 7);
 
                 ErrorBox.Invoke(new Action(() => { ErrorBox.Text = name + " was successfully modified."; }));
 
@@ -782,8 +797,8 @@ namespace SS
             }
             else if (first.StartsWith("CHANGE FAIL") && lines.Count() == 3)
             {
-                String name = lines[1].Substring(4, lines[1].Length - 1);
-                String message = lines[2].Substring(0, lines[2].Length - 1);
+                String name = extractLine(lines[1], 4);
+                String message = extractLine(lines[2], 0);
 
                 ErrorBox.Invoke(new Action(() => { ErrorBox.Text = name + " was unable to be modified: " + message; }));
 
@@ -792,8 +807,8 @@ namespace SS
             else if (first.StartsWith("UNDO OK") && lines.Count() == 3)
             {
                 // Do something.
-                String name = lines[1].Substring(4, lines[1].Length - 1);
-                version = lines[2].Substring(7, lines[2].Length - 1);
+                String name = extractLine(lines[1], 4);
+                version = extractLine(lines[2], 7);
 
                 ErrorBox.Invoke(new Action(() => { ErrorBox.Text = "The last action of " + name + " was successfully undid."; }));
 
@@ -802,7 +817,8 @@ namespace SS
             else if (first.StartsWith("UNDO END") && lines.Count() == 3)
             {
                 // Do something.
-                String name = lines[1].Substring(4, lines[1].Length - 1);
+                String name = extractLine(lines[1], 4);
+                
                 ErrorBox.Invoke(new Action(() => { ErrorBox.Text = "There are no unsaved changes on " + name + "."; }));
 
                 lines.Clear();
@@ -817,8 +833,8 @@ namespace SS
             else if (first.StartsWith("UNDO FAIL") && lines.Count() == 3)
             {
                 // Do something.
-                String name = lines[1].Substring(4, lines[1].Length - 1);
-                String message = lines[2].Substring(0, lines[2].Length - 1);
+                String name = extractLine(lines[1], 4);
+                String message = extractLine(lines[2], 0);
 
                 ErrorBox.Invoke(new Action(() => { ErrorBox.Text = name + " was unable to be undid: " + message; }));
 
@@ -827,11 +843,11 @@ namespace SS
             else if (first.StartsWith("UPDATE") && lines.Count() == 6)
             {
                 // Do something.
-                String name = lines[1].Substring(4, lines[1].Length - 1);
-                version = lines[2].Substring(7, lines[2].Length - 1);
-                String cellName = lines[3].Substring(4, lines[3].Length - 1);
-                String length = lines[4].Substring(6, lines[4].Length - 1);
-                String content = lines[5].Substring(0, lines[5].Length - 1);
+                String name = extractLine(lines[1], 4);
+                version = extractLine(lines[2], 7);
+                String cellName = extractLine(lines[3], 4);
+                String length = extractLine(lines[4], 6);
+                String content = extractLine(lines[5], 0);
 
                 // Update the cell and junk.
                 int row, col; // Establishes variables to store row and column information.
@@ -867,7 +883,7 @@ namespace SS
             else if (first.StartsWith("SAVE OK") && lines.Count() == 2)
             {
                 // Do something.
-                String name = lines[1].Substring(4, lines[1].Length - 1);
+                String name = extractLine(lines[1], 4);
 
                 ErrorBox.Invoke(new Action(() => { ErrorBox.Text = name + " was successfully saved."; }));
 
@@ -876,8 +892,8 @@ namespace SS
             else if (first.StartsWith("SAVE FAIL") && lines.Count() == 3)
             {
                 // Do something.
-                String name = lines[1].Substring(4, lines[1].Length - 1);
-                String message = lines[2].Substring(0, lines[2].Length - 1);
+                String name = extractLine(lines[1], 4);
+                String message = extractLine(lines[2], 0);
 
                 ErrorBox.Invoke(new Action(() => { ErrorBox.Text = name + " was unable to be saved: " + message; }));
 
