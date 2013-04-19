@@ -33,7 +33,7 @@ namespace SS
         private SS.SpreadsheetClient model;    // The spreadsheet communication model.
         private bool beingEdited = false;
         private bool connected = false;        // The connection status of the model.
-        private int index = 0;
+        private bool debugging = false;
 
         private String sessionName = "Test";   // The name of the current session.
         private String version = "-1";         // The model's version of the session.
@@ -43,6 +43,8 @@ namespace SS
 
         // A separate form used for connection input.
         private SS.Form2 connectForm;
+        // A separate form used for message debugging.
+        private SS.DebugForm debugForm;
 
         /// <summary>
         /// Constructor for the spreadsheet form.
@@ -258,6 +260,17 @@ namespace SS
             MessageBox.Show(message, "How To");
         }
 
+        private void debugToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (!debugging)
+            {
+                debugForm = new DebugForm(this);
+                debugForm.Show();
+
+                setDebugging(true);
+            }
+        }
+
         /// <summary>
         /// Handles the "Connect" menu item listed under Server.
         /// </summary>
@@ -269,7 +282,7 @@ namespace SS
             connectForm.setMessage("Please enter the IP address and port you wish to connect to.");
             connectForm.setLabels("Address:", "Port:");
             connectForm.setButtonText("Connect", "Cancel");
-            connectForm.setDefaultInput("", "1984");
+            connectForm.setDefaultInput("lab1-6.eng.utah.edu", "1984");
             connectForm.setCallback(connect);
             connectForm.Show();
         }
@@ -315,6 +328,8 @@ namespace SS
         {
             String message = "SAVE\n";
             message += "Name:" + sessionName + "\n";
+
+            if (debugging) debugForm.addClientToServer(message);
             try { model.SendMessage(message); }
             catch (Exception ex) { ErrorBox.Text = ex.Message.ToString(); }
         }
@@ -329,6 +344,8 @@ namespace SS
             String message = "UNDO\n";
             message += "Name:" + sessionName + "\n";
             message += "Version:" + version + "\n";
+
+            if (debugging) debugForm.addClientToServer(message);
             try { model.SendMessage(message); }
             catch (Exception ex) { ErrorBox.Text = ex.Message.ToString(); }
         }
@@ -340,7 +357,9 @@ namespace SS
         /// <param name="e"></param>
         private void leaveSessionToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            try { model.SendMessage("LEAVE\nName:" + sessionName + "\n"); }
+            String message = "LEAVE\nName:" + sessionName + "\n";
+            if (debugging) debugForm.addClientToServer(message);
+            try { model.SendMessage(message); }
             catch (Exception ex) { ErrorBox.Text = ex.Message.ToString(); }
 
             ErrorBox.Text = "You have successfully left the session.";
@@ -640,11 +659,12 @@ namespace SS
                 message += "Name:" + name + "\n";
                 message += "Password:" + pass + "\n";
 
+                if (debugging) debugForm.addClientToServer(message);
                 model.SendMessage(message);
             }
             catch (Exception e)
             {
-                ErrorBox.Text = e.Message.ToString();
+                ErrorBox.Text = "In create: " + e.Message.ToString();
             }
         }
 
@@ -662,11 +682,12 @@ namespace SS
                 message += "Name:" + name + "\n";
                 message += "Password:" + pass + "\n";
 
+                if (debugging) debugForm.addClientToServer(message);
                 model.SendMessage(message);
             }
             catch (Exception e) 
             {
-                ErrorBox.Text = e.Message.ToString();
+                ErrorBox.Text = "In join: " + e.Message.ToString();
             }
         }
 
@@ -691,7 +712,7 @@ namespace SS
             }
             catch (Exception ex)
             {
-                ErrorBox.Text = ex.Message.ToString();
+                ErrorBox.Invoke(new Action(() => { ErrorBox.Text = "In Disconnect: " + ex.Message.ToString(); }));
             }
         }
 
@@ -723,19 +744,9 @@ namespace SS
             }
         }
 
-        /// <summary>
-        /// A helper function that retreives a substring a line at 
-        /// a specified starting location, and removes the trailing
-        /// newline character.
-        /// </summary>
-        /// <param name="line"></param>
-        /// <param name="start"></param>
-        /// <returns></returns>
-        private String extractLine(String line, int start)
+        public void setDebugging(bool state)
         {
-            string s = line.Substring(start);
-            s.Remove(s.Length - 1);
-            return s;
+            debugging = state;
         }
 
         /// <summary>
@@ -745,196 +756,200 @@ namespace SS
         /// <param name="line"></param>
         private void MessageReceived(String line)
         {
-            if (!line.StartsWith("System.Net") || line != "")
+            if (line.StartsWith("System.Net"))
             {
-                spreadsheetPanel1.SetValue(9, index, line);
-                index++;
+                disconnect();
+                ErrorBox.Invoke(new Action(() => { ErrorBox.Text = "The server closed unexpectedly."; }));
             }
-
-            if (line.StartsWith("CREATE") || line.StartsWith("JOIN") || line.StartsWith("CHANGE")
-                || line.StartsWith("UNDO") || line.StartsWith("UPDATE") || line.StartsWith("SAVE")
-                || line.StartsWith("ERROR"))
-                lines.Clear();
-
-            lines.Add(line);
-            String first = lines[0];
-
-            // If first line starts with "SOME TAG" and lines.size() is command size
-            if (first.StartsWith("CREATE OK") && lines.Count() == 3)
+            else
             {
-                String name = extractLine(lines[1], 4);
+                debugForm.addServerToClient(line);
 
-                createSessionToolStripMenuItem.Enabled = false;
-                joinExistingToolStripMenuItem.Enabled = false;
-                saveSessionToolStripMenuItem.Enabled = true;
-                leaveSessionToolStripMenuItem.Enabled = true;
+                if (line.StartsWith("CREATE") || line.StartsWith("JOIN") || line.StartsWith("CHANGE")
+                    || line.StartsWith("UNDO") || line.StartsWith("UPDATE") || line.StartsWith("SAVE")
+                    || line.StartsWith("ERROR"))
+                    lines.Clear();
 
-                ErrorBox.Invoke(new Action(() => { ErrorBox.Text = name + " successfully created."; }));
-            }
-            else if (first.StartsWith("CREATE FAIL") && lines.Count() == 3)
-            {
-                String name = extractLine(lines[1], 4);
-                String message = extractLine(lines[2], 0);
+                lines.Add(line);
+                String first = lines[0];
 
-                ErrorBox.Invoke(new Action(() => { ErrorBox.Text = name + " failed to create: " + message; }));
-            }
-            else if (first.StartsWith("JOIN OK") && lines.Count() == 5)
-            {
-                sessionName = extractLine(lines[1], 4);
-                version = extractLine(lines[2], 7);
-                String length = extractLine(lines[3], 6);
-                String xml = extractLine(lines[4], 0);
-
-                // Save xml into a temporary file.
-                String path = "temp.ss";
-                using (File.Create(path))
+                // If first line starts with "SOME TAG" and lines.size() is command size
+                if (first.StartsWith("CREATE OK") && lines.Count() == 3)
                 {
-                    TextWriter tw = new StreamWriter(path, true);
-                    tw.WriteLine(xml);
-                    tw.Close();
+                    String name = lines[1].Substring(5);
+
+                    createSessionToolStripMenuItem.Enabled = false;
+                    joinExistingToolStripMenuItem.Enabled = false;
+                    saveSessionToolStripMenuItem.Enabled = true;
+                    leaveSessionToolStripMenuItem.Enabled = true;
+
+                    ErrorBox.Invoke(new Action(() => { ErrorBox.Text = name + " successfully created."; }));
                 }
-                // Load the file into the spreadsheet.
-                loadSpreadsheet(path);
-                // Delete the file.
-                File.Delete(path);
-
-                createSessionToolStripMenuItem.Enabled = false;
-                joinExistingToolStripMenuItem.Enabled = false;
-                saveSessionToolStripMenuItem.Enabled = true;
-                leaveSessionToolStripMenuItem.Enabled = true;
-
-                ErrorBox.Invoke(new Action(() => { ErrorBox.Text = "Successfully joined " + sessionName; }));
-
-                lines.Clear();
-            }
-            else if (first.StartsWith("JOIN FAIL") && lines.Count() == 3)
-            {
-                String name = extractLine(lines[1], 4);
-                String message = extractLine(lines[2], 0);
-
-                ErrorBox.Invoke(new Action(() => { ErrorBox.Text = "Failed to join " + name + ": " + message; }));
-
-                lines.Clear();
-            }
-            else if (first.StartsWith("CHANGE OK") && lines.Count() == 3)
-            {
-                String name = extractLine(lines[1], 4);
-                version = extractLine(lines[2], 7);
-
-                ErrorBox.Invoke(new Action(() => { ErrorBox.Text = name + " was successfully modified."; }));
-
-                lines.Clear();
-            }
-            else if (first.StartsWith("CHANGE FAIL") && lines.Count() == 3)
-            {
-                String name = extractLine(lines[1], 4);
-                String message = extractLine(lines[2], 0);
-
-                ErrorBox.Invoke(new Action(() => { ErrorBox.Text = name + " was unable to be modified: " + message; }));
-
-                lines.Clear();
-            }
-            else if (first.StartsWith("UNDO OK") && lines.Count() == 3)
-            {
-                // Do something.
-                String name = extractLine(lines[1], 4);
-                version = extractLine(lines[2], 7);
-
-                ErrorBox.Invoke(new Action(() => { ErrorBox.Text = "The last action of " + name + " was successfully undid."; }));
-
-                lines.Clear();
-            }
-            else if (first.StartsWith("UNDO END") && lines.Count() == 3)
-            {
-                // Do something.
-                String name = extractLine(lines[1], 4);
-                
-                ErrorBox.Invoke(new Action(() => { ErrorBox.Text = "There are no unsaved changes on " + name + "."; }));
-
-                lines.Clear();
-            }
-            else if (first.StartsWith("UNDO WAIT") && lines.Count() == 3)
-            {
-                // Do something.
-                ErrorBox.Invoke(new Action(() => { ErrorBox.Text = "Your version is out of date, please wait for an update."; }));
-
-                lines.Clear();
-            }
-            else if (first.StartsWith("UNDO FAIL") && lines.Count() == 3)
-            {
-                // Do something.
-                String name = extractLine(lines[1], 4);
-                String message = extractLine(lines[2], 0);
-
-                ErrorBox.Invoke(new Action(() => { ErrorBox.Text = name + " was unable to be undid: " + message; }));
-
-                lines.Clear();
-            }
-            else if (first.StartsWith("UPDATE") && lines.Count() == 6)
-            {
-                // Do something.
-                String name = extractLine(lines[1], 4);
-                version = extractLine(lines[2], 7);
-                String cellName = extractLine(lines[3], 4);
-                String length = extractLine(lines[4], 6);
-                String content = extractLine(lines[5], 0);
-
-                // Update the cell and junk.
-                int row, col; // Establishes variables to store row and column information.
-                String value;
-                IEnumerable<string> ToBeUpdated; // Creates an enumerable to store the cells of the spreadsheet to be updated.
-                try // Attempts to change the contents and value of the cell within the spreadsheet GUI.
+                else if (first.StartsWith("CREATE FAIL") && lines.Count() == 3)
                 {
-                    // Sets the contents and values of the logic cells and stores the returned set in the enumerable.
-                    ToBeUpdated = ss.SetContentsOfCell(cellName, content.ToUpper());
-                    spreadsheetPanel1.GetSelection(out col, out row);     // Retrieves the column and row information of the current selection.
-                    spreadsheetPanel1.GetValue(col, row, out value);      // Gets the value of the currently selected cell.
-                    spreadsheetPanel1.SetValue(col, row, ss.GetCellValue(NameBox.Text).ToString()); // Sets the value of the currently selection.
-                    ValueBox.Text = ss.GetCellValue(NameBox.Text).ToString(); // Updates the text of the box that displays the current cell value.
+                    String name = lines[1].Substring(5);
+                    String message = lines[1];
 
-                    foreach (string cell in ToBeUpdated)  // Updates each of the cells that were directly or indirectly dependent on the current selection.
+                    ErrorBox.Invoke(new Action(() => { ErrorBox.Text = name + " failed to create: " + message; }));
+                }
+                else if (first.StartsWith("JOIN OK") && lines.Count() == 5)
+                {
+                    sessionName = lines[1].Substring(5);
+                    version = lines[2].Substring(8);
+                    String length = lines[3].Substring(7);
+                    String xml = lines[4];
+
+                    // Save xml into a temporary file.
+                    String path = "temp.ss";
+                    using (File.Create(path))
                     {
-                        col = ConvertLetterToNumber(cell[0]);            // Convert the letter into a column coordinate.
-                        Int32.TryParse(cell.Substring(1), out row);      // Attempts to parse the rest of the cell name as the row.
-                        spreadsheetPanel1.GetValue(col, row, out value); // Changes the GUI cell to reflect the changes to the spreadsheet logic.
-                        spreadsheetPanel1.SetValue(col, row - 1, ss.GetCellValue(cell).ToString());
+                        TextWriter tw = new StreamWriter(path, true);
+                        tw.WriteLine(xml);
+                        tw.Close();
                     }
+                    // Load the file into the spreadsheet.
+                    loadSpreadsheet(path);
+                    // Delete the file.
+                    File.Delete(path);
+
+                    createSessionToolStripMenuItem.Enabled = false;
+                    joinExistingToolStripMenuItem.Enabled = false;
+                    saveSessionToolStripMenuItem.Enabled = true;
+                    leaveSessionToolStripMenuItem.Enabled = true;
+
+                    ErrorBox.Invoke(new Action(() => { ErrorBox.Text = "Successfully joined " + sessionName; }));
+
+                    lines.Clear();
                 }
-                catch (Exception c) // Catches any exceptions thrown and displays a specific message in the error box.
+                else if (first.StartsWith("JOIN FAIL") && lines.Count() == 3)
                 {
-                    string report = c.Message;
-                    ErrorBox.Text = report;
+                    String name = lines[1].Substring(5);
+                    String message = lines[2];
+
+                    ErrorBox.Invoke(new Action(() => { ErrorBox.Text = "Failed to join " + name + ": " + message; }));
+
+                    lines.Clear();
                 }
+                else if (first.StartsWith("CHANGE OK") && lines.Count() == 3)
+                {
+                    String name = lines[1].Substring(5);
+                    version = lines[2].Substring(8);
 
-                ErrorBox.Invoke(new Action(() => { ErrorBox.Text = "Spreadsheet was successfully updated."; }));
+                    ErrorBox.Invoke(new Action(() => { ErrorBox.Text = name + " was successfully modified."; }));
 
-                lines.Clear();
-            }
-            else if (first.StartsWith("SAVE OK") && lines.Count() == 2)
-            {
-                // Do something.
-                String name = extractLine(lines[1], 4);
+                    lines.Clear();
+                }
+                else if (first.StartsWith("CHANGE FAIL") && lines.Count() == 3)
+                {
+                    String name = lines[1].Substring(5);
+                    String message = lines[2];
 
-                ErrorBox.Invoke(new Action(() => { ErrorBox.Text = name + " was successfully saved."; }));
+                    ErrorBox.Invoke(new Action(() => { ErrorBox.Text = name + " was unable to be modified: " + message; }));
 
-                lines.Clear();
-            }
-            else if (first.StartsWith("SAVE FAIL") && lines.Count() == 3)
-            {
-                // Do something.
-                String name = extractLine(lines[1], 4);
-                String message = extractLine(lines[2], 0);
+                    lines.Clear();
+                }
+                else if (first.StartsWith("UNDO OK") && lines.Count() == 3)
+                {
+                    // Do something.
+                    String name = lines[1].Substring(5);
+                    version = lines[2].Substring(8);
 
-                ErrorBox.Invoke(new Action(() => { ErrorBox.Text = name + " was unable to be saved: " + message; }));
+                    ErrorBox.Invoke(new Action(() => { ErrorBox.Text = "The last action of " + name + " was successfully undid."; }));
 
-                lines.Clear();
-            }
-            else if (first.StartsWith("ERROR") && lines.Count() == 1)
-            {
-                // Do something.
-                ErrorBox.Invoke(new Action(() => { ErrorBox.Text = "Sum terbible erlor has acrued."; }));
+                    lines.Clear();
+                }
+                else if (first.StartsWith("UNDO END") && lines.Count() == 3)
+                {
+                    // Do something.
+                    String name = lines[1].Substring(5);
 
-                lines.Clear();
+                    ErrorBox.Invoke(new Action(() => { ErrorBox.Text = "There are no unsaved changes on " + name + "."; }));
+
+                    lines.Clear();
+                }
+                else if (first.StartsWith("UNDO WAIT") && lines.Count() == 3)
+                {
+                    // Do something.
+                    ErrorBox.Invoke(new Action(() => { ErrorBox.Text = "Your version is out of date, please wait for an update."; }));
+
+                    lines.Clear();
+                }
+                else if (first.StartsWith("UNDO FAIL") && lines.Count() == 3)
+                {
+                    // Do something.
+                    String name = lines[1].Substring(5);
+                    String message = lines[2];
+
+                    ErrorBox.Invoke(new Action(() => { ErrorBox.Text = name + " was unable to be undid: " + message; }));
+
+                    lines.Clear();
+                }
+                else if (first.StartsWith("UPDATE") && lines.Count() == 6)
+                {
+                    // Do something.
+                    String name = lines[1].Substring(5);
+                    version = lines[2].Substring(8);
+                    String cellName = lines[3].Substring(5);
+                    String length = lines[4].Substring(7);
+                    String content = lines[5];
+
+                    // Update the cell and junk.
+                    int row, col; // Establishes variables to store row and column information.
+                    String value;
+                    IEnumerable<string> ToBeUpdated; // Creates an enumerable to store the cells of the spreadsheet to be updated.
+                    try // Attempts to change the contents and value of the cell within the spreadsheet GUI.
+                    {
+                        // Sets the contents and values of the logic cells and stores the returned set in the enumerable.
+                        ToBeUpdated = ss.SetContentsOfCell(cellName, content.ToUpper());
+                        spreadsheetPanel1.GetSelection(out col, out row);     // Retrieves the column and row information of the current selection.
+                        spreadsheetPanel1.GetValue(col, row, out value);      // Gets the value of the currently selected cell.
+                        spreadsheetPanel1.SetValue(col, row, ss.GetCellValue(NameBox.Text).ToString()); // Sets the value of the currently selection.
+                        ValueBox.Text = ss.GetCellValue(NameBox.Text).ToString(); // Updates the text of the box that displays the current cell value.
+
+                        foreach (string cell in ToBeUpdated)  // Updates each of the cells that were directly or indirectly dependent on the current selection.
+                        {
+                            col = ConvertLetterToNumber(cell[0]);            // Convert the letter into a column coordinate.
+                            Int32.TryParse(cell.Substring(1), out row);      // Attempts to parse the rest of the cell name as the row.
+                            spreadsheetPanel1.GetValue(col, row, out value); // Changes the GUI cell to reflect the changes to the spreadsheet logic.
+                            spreadsheetPanel1.SetValue(col, row - 1, ss.GetCellValue(cell).ToString());
+                        }
+                    }
+                    catch (Exception c) // Catches any exceptions thrown and displays a specific message in the error box.
+                    {
+                        string report = c.Message;
+                        ErrorBox.Text = report;
+                    }
+
+                    ErrorBox.Invoke(new Action(() => { ErrorBox.Text = "Spreadsheet was successfully updated."; }));
+
+                    lines.Clear();
+                }
+                else if (first.StartsWith("SAVE OK") && lines.Count() == 2)
+                {
+                    // Do something.
+                    String name = lines[1].Substring(5);
+
+                    ErrorBox.Invoke(new Action(() => { ErrorBox.Text = name + " was successfully saved."; }));
+
+                    lines.Clear();
+                }
+                else if (first.StartsWith("SAVE FAIL") && lines.Count() == 3)
+                {
+                    // Do something.
+                    String name = lines[1].Substring(5);
+                    String message = lines[2];
+
+                    ErrorBox.Invoke(new Action(() => { ErrorBox.Text = name + " was unable to be saved: " + message; }));
+
+                    lines.Clear();
+                }
+                else if (first.StartsWith("ERROR") && lines.Count() == 1)
+                {
+                    // Do something.
+                    ErrorBox.Invoke(new Action(() => { ErrorBox.Text = "Sum terbible erlor has acrued."; }));
+
+                    lines.Clear();
+                }
             }
         }
     }

@@ -38,7 +38,7 @@ namespace SS
         public void SendMessage(String line)
         {
             if (socket != null)
-                socket.BeginSend(line + "\n", (e, p) => { }, null);
+                socket.BeginSend(line, (e, p) => { }, null);
         }
 
         private void LineReceived(String s, Exception e, object p)
