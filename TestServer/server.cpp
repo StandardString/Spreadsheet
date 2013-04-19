@@ -7,25 +7,16 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#include <ctime>
 #include <iostream>
 #include <string>
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
-#include <boost/enable_shared_from_this.hpp>
 #include <boost/asio.hpp>
 #include "session.h"
 
 using boost::asio::ip::tcp;
- std::string make_daytime_string()
- {
-   using namespace std; // For time_t, time and ctime;
-   time_t now = time(0);
-   return ctime(&now);
- }
 
 class tcp_connection
-  : public boost::enable_shared_from_this<tcp_connection>
 {
 public:
   typedef boost::shared_ptr<tcp_connection> pointer;
@@ -42,12 +33,6 @@ public:
 
   void start()
   {
- 
-    message_ = "MEOW \n";
-    boost::asio::async_write(socket_, boost::asio::buffer(message_),
-        boost::bind(&tcp_connection::handle_write, shared_from_this(),
-          boost::asio::placeholders::error,
-          boost::asio::placeholders::bytes_transferred));
   }
 
 private:
@@ -56,13 +41,8 @@ private:
   {
   }
 
-  void handle_write(const boost::system::error_code& /*error*/,
-      size_t /*bytes_transferred*/)
-  {
-  }
-
   tcp::socket socket_;
-  std::string message_;
+ 
 };
 
 class tcp_server
@@ -75,6 +55,8 @@ public:
     start_accept();
   }
 
+
+
 private:
   void start_accept()
   {
@@ -86,30 +68,21 @@ private:
         boost::bind(&tcp_server::handle_accept, this, new_connection,
           boost::asio::placeholders::error));
     
- 
   }
 
   void handle_accept(tcp_connection::pointer new_connection,
       const boost::system::error_code& error)
   {    
-   
-  
-
     if (!error)
-    {
-      tcp::socket& incoming = new_connection->socket();
-      boost::array<char, 128> buf;
-      size_t len = incoming.read_some(boost::asio::buffer(buf));
-      std::cout.write(buf.data(), len);
-      session::session connected;
-      std::string msg = "WELCOME TO SERVER LAND \n";
-      connected.add_socket(&incoming);
-      connected.broadcast(msg);
-      msg = "BJFLDJFKLDJSAF \n";
-      connected.broadcast(msg);
-      std::cout << "IN NO ERROR" << std::endl;
-      // new_connection->start();
-      start_accept();
+    {      
+      //START ASYNC READ ON THAT CONNECTION
+      boost::asio::async_read_until(new_connection->socket(),
+				    b,
+				    '\n',
+				    boost::bind(&tcp_server::handle_read, this, new_connection,
+				    boost::asio::placeholders::error));
+
+      start_accept();//START ACCEPTING NEW CLIENTS
     }
     else if (error){
       std::cerr << "in error"  << std::endl;
@@ -117,8 +90,28 @@ private:
     }
   }
 
+  void handle_read(tcp_connection::pointer new_connection, const boost::system::error_code& error)
+  {
+   
+    std::istream is(&b);
+    std::string line;
+    std::getline(is, line);
+    std::cout << line << std::endl;
+    if(!error)
+      {
+	boost::asio::async_read_until(new_connection->socket(),
+				    b,
+				    '\n',
+				      boost::bind(&tcp_server::handle_read, this, new_connection,boost::asio::placeholders::error));
+      }
+  }
+
   tcp::acceptor acceptor_;
+  boost::asio::streambuf b;
 };
+
+
+
 
 int main()
 {
