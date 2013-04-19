@@ -54,7 +54,8 @@
             this.NameBox.Name = "NameBox";
             this.NameBox.Size = new System.Drawing.Size(293, 20);
             this.NameBox.TabIndex = 1;
-            this.NameBox.TextChanged += new System.EventHandler(this.UsernameBox_TextChanged);
+            this.NameBox.TextChanged += new System.EventHandler(this.NameBox_TextChanged);
+            this.NameBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.NameBox_KeyDown);
             // 
             // NameLabel
             // 
@@ -81,6 +82,7 @@
             this.PasswordBox.Size = new System.Drawing.Size(293, 20);
             this.PasswordBox.TabIndex = 4;
             this.PasswordBox.TextChanged += new System.EventHandler(this.PasswordBox_TextChanged);
+            this.PasswordBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.PasswordBox_KeyDown);
             // 
             // CancelButton
             // 

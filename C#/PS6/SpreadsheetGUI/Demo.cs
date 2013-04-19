@@ -32,9 +32,7 @@ namespace SS
         private SS.AbstractSpreadsheet ss;     // The logic spreadsheet.
         private SS.SpreadsheetClient model;    // The spreadsheet communication model.
         private bool beingEdited = false;
-        private String IPAddress = "lab1-13.eng.utah.edu";  // The default IP address.
         private bool connected = false;        // The connection status of the model.
-        private int port = 1984;               // The default port to operate on.
         private int index = 0;
 
         private String sessionName = "Test";   // The name of the current session.
@@ -267,24 +265,13 @@ namespace SS
         /// <param name="e"></param>
         private void connectToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ErrorBox.Text = "Attempting to establish connection to host server";
-
-            try
-            {
-                model.Connect(IPAddress, port);
-                ErrorBox.Text = "Established connection with the host server.";
-
-                connected = true;
-
-                connectToolStripMenuItem.Enabled = false;
-                createSessionToolStripMenuItem.Enabled = true;
-                joinExistingToolStripMenuItem.Enabled = true;
-                disconnectToolStripMenuItem.Enabled = true;
-            }
-            catch (Exception ex)
-            {
-                ErrorBox.Text = ex.Message.ToString();
-            }
+            connectForm = new Form2(this);
+            connectForm.setMessage("Please enter the IP address and port you wish to connect to.");
+            connectForm.setLabels("Address:", "Port:");
+            connectForm.setButtonText("Connect", "Cancel");
+            connectForm.setDefaultInput("", "1984");
+            connectForm.setCallback(connect);
+            connectForm.Show();
         }
 
         /// <summary>
@@ -295,8 +282,10 @@ namespace SS
         private void createSessionToolStripMenuItem_Click(object sender, EventArgs e)
         {
             connectForm = new Form2(this);
-            connectForm.setMessage("create");
-            connectForm.setButtonText("Create");
+            connectForm.setMessage("Please enter the name and password of the session you wish to create.");
+            connectForm.setLabels("Name:", "Password:");
+            connectForm.setButtonText("Create", "Cancel");
+            connectForm.setDefaultInput("", "");
             connectForm.setCallback(create);
             connectForm.Show();
         }
@@ -309,8 +298,10 @@ namespace SS
         private void joinExistingToolStripMenuItem_Click(object sender, EventArgs e)
         {
             connectForm = new Form2(this);
-            connectForm.setMessage("join");
-            connectForm.setButtonText("Join");
+            connectForm.setMessage("Please enter the name and password of the session you wish to join.");
+            connectForm.setLabels("Name:", "Password:");
+            connectForm.setButtonText("Join", "Cancel");
+            connectForm.setDefaultInput("", "");
             connectForm.setCallback(join);
             connectForm.Show();
         }
@@ -602,6 +593,40 @@ namespace SS
         }
 
         /// <summary>
+        /// A helper method that connects the server to the specified
+        /// IP address along the specified port.
+        /// </summary>
+        /// <param name="IP"></param>
+        /// <param name="port"></param>
+        private void connect(String IP, String port)
+        {
+            int result;
+            if (!int.TryParse(port, out result))
+            {
+                ErrorBox.Text = "Unable to resolve port number.";
+                return;
+            }
+
+            ErrorBox.Text = "Attempting to establish connection to host server";
+            try
+            {
+                model.Connect(IP, result);
+                ErrorBox.Text = "Established connection with the host server.";
+
+                connected = true;
+
+                connectToolStripMenuItem.Enabled = false;
+                createSessionToolStripMenuItem.Enabled = true;
+                joinExistingToolStripMenuItem.Enabled = true;
+                disconnectToolStripMenuItem.Enabled = true;
+            }
+            catch (Exception ex)
+            {
+                ErrorBox.Text = ex.Message.ToString();
+            }
+        }
+
+        /// <summary>
         /// A helper method that prepares a CREATE message and sends it
         /// to the server.
         /// </summary>
@@ -725,6 +750,11 @@ namespace SS
                 spreadsheetPanel1.SetValue(9, index, line);
                 index++;
             }
+
+            if (line.StartsWith("CREATE") || line.StartsWith("JOIN") || line.StartsWith("CHANGE")
+                || line.StartsWith("UNDO") || line.StartsWith("UPDATE") || line.StartsWith("SAVE")
+                || line.StartsWith("ERROR"))
+                lines.Clear();
 
             lines.Add(line);
             String first = lines[0];
