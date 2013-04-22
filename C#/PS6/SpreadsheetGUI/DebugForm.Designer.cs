@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.Dialog = new System.Windows.Forms.TextBox();
+            this.CommandBox = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // Dialog
@@ -42,16 +43,25 @@
             this.Dialog.Name = "Dialog";
             this.Dialog.ReadOnly = true;
             this.Dialog.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.Dialog.Size = new System.Drawing.Size(494, 171);
+            this.Dialog.Size = new System.Drawing.Size(494, 142);
             this.Dialog.TabIndex = 0;
             this.Dialog.WordWrap = false;
             this.Dialog.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Dialog_KeyDown);
+            // 
+            // CommandBox
+            // 
+            this.CommandBox.Location = new System.Drawing.Point(13, 163);
+            this.CommandBox.Name = "CommandBox";
+            this.CommandBox.Size = new System.Drawing.Size(494, 20);
+            this.CommandBox.TabIndex = 1;
+            this.CommandBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.CommandBox_KeyDown);
             // 
             // DebugForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(519, 195);
+            this.Controls.Add(this.CommandBox);
             this.Controls.Add(this.Dialog);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
@@ -67,5 +77,6 @@
         #endregion
 
         private System.Windows.Forms.TextBox Dialog;
+        private System.Windows.Forms.TextBox CommandBox;
     }
 }

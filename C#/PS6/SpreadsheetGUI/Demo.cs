@@ -72,6 +72,8 @@ namespace SS
             undoLastToolStripMenuItem.Enabled = false;
             leaveSessionToolStripMenuItem.Enabled = false;
             disconnectToolStripMenuItem.Enabled = false;
+
+            ContentBox.Focus();
         }
 
         /// <summary>
@@ -100,6 +102,8 @@ namespace SS
             undoLastToolStripMenuItem.Enabled = false;
             leaveSessionToolStripMenuItem.Enabled = false;
             disconnectToolStripMenuItem.Enabled = false;
+
+            ContentBox.Focus();
         }
 
         /// <summary>
@@ -260,14 +264,20 @@ namespace SS
             MessageBox.Show(message, "How To");
         }
 
+        /// <summary>
+        /// Handles the "Debug" menu item listed under Help.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void debugToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (!debugging)
+            if (!debugging) // If the client is not already debugging...
             {
-                debugForm = new DebugForm(this);
-                debugForm.Show();
+                debugForm = new DebugForm(); // Create a new debugging window.
+                debugForm.setCallback(setDebugging); // Set the callback.
+                debugForm.Show(); // Show the window.
 
-                setDebugging(true);
+                setDebugging(true); // Change the state of debugging.
             }
         }
 
@@ -278,13 +288,14 @@ namespace SS
         /// <param name="e"></param>
         private void connectToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            connectForm = new Form2(this);
+            connectForm = new Form2(this); // Creates a new connection window.
+            // Sets necessary attributes of the connection window.
             connectForm.setMessage("Please enter the IP address and port you wish to connect to.");
             connectForm.setLabels("Address:", "Port:");
             connectForm.setButtonText("Connect", "Cancel");
-            connectForm.setDefaultInput("lab1-6.eng.utah.edu", "1984");
+            connectForm.setDefaultInput("lab1-27.eng.utah.edu", "1992");
             connectForm.setCallback(connect);
-            connectForm.Show();
+            connectForm.Show(); // Shows the connection window.
         }
 
         /// <summary>
@@ -294,13 +305,14 @@ namespace SS
         /// <param name="e"></param>
         private void createSessionToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            connectForm = new Form2(this);
+            connectForm = new Form2(this); // Creates a new connection window.
+            // Sets the necessary attributes of the connection window.
             connectForm.setMessage("Please enter the name and password of the session you wish to create.");
             connectForm.setLabels("Name:", "Password:");
             connectForm.setButtonText("Create", "Cancel");
             connectForm.setDefaultInput("", "");
             connectForm.setCallback(create);
-            connectForm.Show();
+            connectForm.Show(); // Shows the connection window.
         }
 
         /// <summary>
@@ -310,13 +322,14 @@ namespace SS
         /// <param name="e"></param>
         private void joinExistingToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            connectForm = new Form2(this);
+            connectForm = new Form2(this); // Creates a new connection window.
+            // Sets the necessary attributes of the connection window.
             connectForm.setMessage("Please enter the name and password of the session you wish to join.");
             connectForm.setLabels("Name:", "Password:");
             connectForm.setButtonText("Join", "Cancel");
             connectForm.setDefaultInput("", "");
             connectForm.setCallback(join);
-            connectForm.Show();
+            connectForm.Show(); // Shows the connection window.
         }
 
         /// <summary>
@@ -326,11 +339,12 @@ namespace SS
         /// <param name="e"></param>
         private void saveSessionToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            String message = "SAVE\n";
-            message += "Name:" + sessionName + "\n";
+            String message = "SAVE\n"; // Prepares an outgoing string.
+            message += "Name:" + sessionName + "\n"; // Appends the session name.
 
+            // If the client is in debug mode, it sends the message to the debug window.
             if (debugging) debugForm.addClientToServer(message);
-            try { model.SendMessage(message); }
+            try { model.SendMessage(message); } // Attempts to send the message.
             catch (Exception ex) { ErrorBox.Text = ex.Message.ToString(); }
         }
 
@@ -341,12 +355,13 @@ namespace SS
         /// <param name="e"></param>
         private void undoLastToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            String message = "UNDO\n";
-            message += "Name:" + sessionName + "\n";
-            message += "Version:" + version + "\n";
+            String message = "UNDO\n"; // Prepares an outgoing string.
+            message += "Name:" + sessionName + "\n"; // Appends the session name.
+            message += "Version:" + version + "\n"; // Appends the session version.
 
+            // If the client is in debug mode, it sends the message to the debug window.
             if (debugging) debugForm.addClientToServer(message);
-            try { model.SendMessage(message); }
+            try { model.SendMessage(message); } // Attempts to send the message.
             catch (Exception ex) { ErrorBox.Text = ex.Message.ToString(); }
         }
 
@@ -357,15 +372,19 @@ namespace SS
         /// <param name="e"></param>
         private void leaveSessionToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            // Prepares an outgoing message.
             String message = "LEAVE\nName:" + sessionName + "\n";
+            // If the client is in debug mode, the message is sent to the debug window.
             if (debugging) debugForm.addClientToServer(message);
-            try { model.SendMessage(message); }
+            try { model.SendMessage(message); } // Attempts to send the message.
             catch (Exception ex) { ErrorBox.Text = ex.Message.ToString(); }
 
             ErrorBox.Text = "You have successfully left the session.";
-            sessionName = "";
-            model.Disconnect();
+            sessionName = ""; // Resets the session name.
+            // Initializes a new, blank spreadsheet.
+            ss = new Spreadsheet(s => true, s => s.ToUpper(), "ps6");
 
+            // Modifies menu item visibility under the Server tab.
             createSessionToolStripMenuItem.Enabled = true;
             joinExistingToolStripMenuItem.Enabled = true;
             saveSessionToolStripMenuItem.Enabled = false;
@@ -467,6 +486,8 @@ namespace SS
         {
             int row, col; // Establishes variables to store row and column information.
 
+            if (debugging) debugForm.addClientToServer(e.KeyCode.ToString() + " " + connected.ToString());
+
             if (e.KeyCode == Keys.Left)  // If the left arrow key is pressed, moves the selection 1 column to the left.
             {
                 spreadsheetPanel1.GetSelection(out col, out row);
@@ -503,14 +524,20 @@ namespace SS
 
                 updateBoxes(col, row); // Updates the display text boxes.
             }
-            if (connected && (e.KeyCode == Keys.Enter || e.KeyCode == Keys.Return))
+            if (connected && e.KeyCode == Keys.Return)
             {
                 String message = "CHANGE\n";
                 message += "Name:" + sessionName + "\n";
                 message += "Version:" + version + "\n";
                 message += "Cell:" + NameBox.Text + "\n";
                 message += "Length:5\n";
-                message += ContentBox.Text.ToUpper() + "\n";
+                if (ContentBox.Text.ToUpper() == "")
+                    message += " \n";
+                else
+                    message += ContentBox.Text.ToUpper() + "\n";
+
+                if (debugging) debugForm.addClientToServer(message);
+                model.SendMessage(message);
             }
             if (e.KeyCode == Keys.Delete || e.KeyCode == Keys.Back) // If the delete or return keys are pressed...
             {
@@ -619,27 +646,28 @@ namespace SS
         /// <param name="port"></param>
         private void connect(String IP, String port)
         {
-            int result;
-            if (!int.TryParse(port, out result))
+            int result; // Attempts to parse the port string as an integer.
+            if (!int.TryParse(port, out result)) 
             {
                 ErrorBox.Text = "Unable to resolve port number.";
                 return;
             }
 
             ErrorBox.Text = "Attempting to establish connection to host server";
-            try
+            try // Attempts to connect the client to the IP address along the port.
             {
                 model.Connect(IP, result);
                 ErrorBox.Text = "Established connection with the host server.";
 
-                connected = true;
+                connected = true; // Changes the state of the spreadsheet.
 
+                // Modifies menu item visibility under the Server tab.
                 connectToolStripMenuItem.Enabled = false;
                 createSessionToolStripMenuItem.Enabled = true;
                 joinExistingToolStripMenuItem.Enabled = true;
                 disconnectToolStripMenuItem.Enabled = true;
             }
-            catch (Exception ex)
+            catch (Exception ex) // Otherwise, if some exception was caught.
             {
                 ErrorBox.Text = ex.Message.ToString();
             }
@@ -651,16 +679,18 @@ namespace SS
         /// </summary>
         /// <param name="name"></param>
         /// <param name="pass"></param>
-        public void create(String name, String pass)
+        private void create(String name, String pass)
         {
             try
             {
-                String message = "CREATE\n";
-                message += "Name:" + name + "\n";
-                message += "Password:" + pass + "\n";
+                String message = "CREATE\n"; // Prepares an outgoing message.
+                message += "Name:" + name + "\n"; // Appends the session name.
+                message += "Password:" + pass + "\n"; // Appends the password.
 
+                // If the client is in debugging mode, send the message to the debug
+                // window.
                 if (debugging) debugForm.addClientToServer(message);
-                model.SendMessage(message);
+                model.SendMessage(message); // Sends the message down the socket.
             }
             catch (Exception e)
             {
@@ -674,16 +704,18 @@ namespace SS
         /// </summary>
         /// <param name="name"></param>
         /// <param name="pass"></param>
-        public void join(String name, String pass)
+        private void join(String name, String pass)
         {
             try 
             {
-                String message = "JOIN\n";
-                message += "Name:" + name + "\n";
-                message += "Password:" + pass + "\n";
+                String message = "JOIN\n"; // Prepares an outgoing message.
+                message += "Name:" + name + "\n"; // Appends the session name.
+                message += "Password:" + pass + "\n"; // Appends the password.
 
+                // If the client is in debugging mode, send the message to the debug
+                // window.
                 if (debugging) debugForm.addClientToServer(message);
-                model.SendMessage(message);
+                model.SendMessage(message); // Sends the message down the socket.
             }
             catch (Exception e) 
             {
@@ -696,12 +728,13 @@ namespace SS
         /// </summary>
         private void disconnect()
         {
-            try
+            try // Attempts to disconnect the client.
             {
-                model.Disconnect();
+                model.Disconnect(); // Closes the socket on the client's end.
 
-                connected = false;
+                connected = false; // Changes the state of the spreadsheet.
 
+                // Modifies menu item visibility under the Server tab.
                 connectToolStripMenuItem.Enabled = true;
                 createSessionToolStripMenuItem.Enabled = false;
                 joinExistingToolStripMenuItem.Enabled = false;
@@ -710,7 +743,7 @@ namespace SS
                 leaveSessionToolStripMenuItem.Enabled = false;
                 disconnectToolStripMenuItem.Enabled = false;
             }
-            catch (Exception ex)
+            catch (Exception ex) // Otherwise, if an exception was caught...
             {
                 ErrorBox.Invoke(new Action(() => { ErrorBox.Text = "In Disconnect: " + ex.Message.ToString(); }));
             }
@@ -740,11 +773,15 @@ namespace SS
             }
             catch (Exception c)  // Catches any exceptions that are thrown and creates a message box to display it.
             {
-                MessageBox.Show("Could not read file from disk. \n Original error: " + c.Message, "Open", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Could not read file from disk. \nOriginal error: " + c.Message, "Open", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
-        public void setDebugging(bool state)
+        /// <summary>
+        /// A helper mehtod that changes the debugging state of the spreadsheet.
+        /// </summary>
+        /// <param name="state"></param>
+        private void setDebugging(bool state)
         {
             debugging = state;
         }
@@ -760,10 +797,20 @@ namespace SS
             {
                 disconnect();
                 ErrorBox.Invoke(new Action(() => { ErrorBox.Text = "The server closed unexpectedly."; }));
+                this.Invoke(new Action(() =>
+                {
+                    // Modifies menu item visibility under the Server tab.
+                    connectToolStripMenuItem.Enabled = true;
+                    createSessionToolStripMenuItem.Enabled = false;
+                    joinExistingToolStripMenuItem.Enabled = false;
+                    saveSessionToolStripMenuItem.Enabled = false;
+                    leaveSessionToolStripMenuItem.Enabled = false;
+                    disconnectToolStripMenuItem.Enabled = false;
+                }));
             }
             else
             {
-                debugForm.addServerToClient(line);
+                if (debugging) debugForm.addServerToClient(line);
 
                 if (line.StartsWith("CREATE") || line.StartsWith("JOIN") || line.StartsWith("CHANGE")
                     || line.StartsWith("UNDO") || line.StartsWith("UPDATE") || line.StartsWith("SAVE")
@@ -777,11 +824,6 @@ namespace SS
                 if (first.StartsWith("CREATE OK") && lines.Count() == 3)
                 {
                     String name = lines[1].Substring(5);
-
-                    createSessionToolStripMenuItem.Enabled = false;
-                    joinExistingToolStripMenuItem.Enabled = false;
-                    saveSessionToolStripMenuItem.Enabled = true;
-                    leaveSessionToolStripMenuItem.Enabled = true;
 
                     ErrorBox.Invoke(new Action(() => { ErrorBox.Text = name + " successfully created."; }));
                 }
@@ -801,7 +843,9 @@ namespace SS
 
                     // Save xml into a temporary file.
                     String path = "temp.ss";
-                    using (File.Create(path))
+                    File.Create(path).Dispose();
+                    using (FileStream fs = new FileStream(path,
+                        FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                     {
                         TextWriter tw = new StreamWriter(path, true);
                         tw.WriteLine(xml);
@@ -812,10 +856,13 @@ namespace SS
                     // Delete the file.
                     File.Delete(path);
 
-                    createSessionToolStripMenuItem.Enabled = false;
-                    joinExistingToolStripMenuItem.Enabled = false;
-                    saveSessionToolStripMenuItem.Enabled = true;
-                    leaveSessionToolStripMenuItem.Enabled = true;
+                    this.Invoke(new Action(() =>
+                    {
+                        createSessionToolStripMenuItem.Enabled = false;
+                        joinExistingToolStripMenuItem.Enabled = false;
+                        saveSessionToolStripMenuItem.Enabled = true;
+                        leaveSessionToolStripMenuItem.Enabled = true;
+                    }));
 
                     ErrorBox.Invoke(new Action(() => { ErrorBox.Text = "Successfully joined " + sessionName; }));
 

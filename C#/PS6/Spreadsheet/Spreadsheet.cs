@@ -76,8 +76,8 @@ namespace SS
 
             // Stores the version information of a saved spreadsheet and sets the current spreadsheet to its contents.
             string temp = GetSavedVersion(filePath);  
-            if (temp != Version)
-                throw new SpreadsheetReadWriteException("Saved file version does not match the current spreadsheet.");
+            //if (temp != Version)
+            //    throw new SpreadsheetReadWriteException("Saved file version does not match the current spreadsheet.");
 
             Changed = false; // Modifies the status of changed.
         }
@@ -140,7 +140,7 @@ namespace SS
                 else if (e is CircularException)
                     message = "Setting the contents of a cell to a formula created a circular dependency.";
                 else  // If some other unexpected exception was thrown.
-                    message = "Some terrible error has occurred while attempting to read the spreadsheet.";
+                    message = e.Message.ToString();
                 throw new SpreadsheetReadWriteException(message);
             }
             

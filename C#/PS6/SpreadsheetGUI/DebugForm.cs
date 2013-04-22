@@ -11,18 +11,42 @@ namespace SS
 {
     public partial class DebugForm : Form
     {
-        Form1 context;
+        public delegate void Callback(bool boolean);
+        private Callback cb;
 
-        public DebugForm(Form1 form)
+        public DebugForm()
         {
             InitializeComponent();
+        }
 
-            context = form;
+        private void Dialog_KeyDown(object sender, KeyEventArgs e)
+        {
+            //
+        }
+
+        private void CommandBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Control && e.KeyCode == Keys.D)
+                this.Close();
+
+            if (e.KeyCode == Keys.Enter || e.KeyCode == Keys.Return)
+                run(CommandBox.Text);
         }
 
         private void DebugForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            context.setDebugging(false);
+            cb(false);
+        }
+
+        private void run(string command)
+        {
+            if (command == "clear")
+            {
+                CommandBox.Clear();
+                Dialog.Clear();
+            }
+            if (command == "close")
+                this.Close();
         }
 
         public void addClientToServer(String message)
@@ -33,14 +57,13 @@ namespace SS
 
         public void addServerToClient(String message)
         {
-            String s = "S => S <<" + message + ">>";
+            String s = "S => C <<" + message + ">>";
             Dialog.Invoke(new Action(() => { Dialog.Text += s + "\r\n"; }));
         }
 
-        private void Dialog_KeyDown(object sender, KeyEventArgs e)
+        public void setCallback(Callback callback)
         {
-            if (e.Control && e.KeyCode == Keys.D)
-                this.Close();
+            cb = callback;
         }
     }
 }
