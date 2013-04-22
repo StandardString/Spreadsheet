@@ -217,7 +217,7 @@ std::string spreadsheet::to_xml()
    boost::lock_guard<boost::mutex> lock(this->mutex);
 
    std::string result = "<?xml version=""1.0"" encoding=""utf-8""?>";
-   result += "<spreadsheet version=""ps6"">";
+   result += "<spreadsheet>";
 
    for (std::map<std::string, std::string>::iterator it = this->cells.begin();
 	   it != this->cells.end(); it++)
