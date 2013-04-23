@@ -123,7 +123,7 @@ namespace SS
         }
 
         /// <summary>
-        /// 
+        /// A helper method that sets the content of the message label.
         /// </summary>
         /// <param name="message"></param>
         public void setMessage(String message)
@@ -132,7 +132,7 @@ namespace SS
         }
 
         /// <summary>
-        /// 
+        /// A helper method that sets the input labels of the form.
         /// </summary>
         /// <param name="first"></param>
         /// <param name="second"></param>
@@ -143,7 +143,7 @@ namespace SS
         }
 
         /// <summary>
-        /// 
+        /// A helper method that sets the text for the form buttons.
         /// </summary>
         /// <param name="first"></param>
         /// <param name="second"></param>
@@ -154,7 +154,7 @@ namespace SS
         }
 
         /// <summary>
-        /// 
+        /// A helper method that sets the default text box input.
         /// </summary>
         /// <param name="first"></param>
         /// <param name="second"></param>
@@ -165,7 +165,7 @@ namespace SS
         }
 
         /// <summary>
-        /// 
+        /// A helper method that sets the callback for the form.
         /// </summary>
         /// <param name="callback"></param>
         public void setCallback(Callback callback)
