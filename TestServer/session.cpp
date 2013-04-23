@@ -12,20 +12,11 @@
 
 typedef boost::shared_ptr<boost::asio::ip::tcp::socket> socket_ptr;
 
-/*
- * Constructs an empty session. The underlying spreadsheet
- * is initialized with empty cells.
- */
-session::session() : ss(new spreadsheet())
-{
-   session::users = new std::set<socket_ptr>();
-   ss = new spreadsheet();
-}
-
 
 /*
  * Constructs an empty session from the saved spreadsheet file
- * denoted by filename.
+ * denoted by filename. If the file does not exist,
+ * the spreadsheet is empty.
  */
 session::session(std::string &filename) : ss(new spreadsheet(filename))
 {
@@ -80,9 +71,10 @@ void handlesessionwrite(const boost::system::error_code &err, size_t size)
 }
 
 /*
- * Broadcasts the supplied message to every user in the session.
+ * Broadcasts the supplied message to every user in the session
+ * except the excluded_user
  */
-void session::broadcast(std::string &msg)
+void session::broadcast(std::string &msg, socket_ptr excluded_user)
 {
 
    char *data = new char[msg.size()];
@@ -98,6 +90,8 @@ void session::broadcast(std::string &msg)
    {
       
       socket_ptr s = *it;
-      boost::asio::async_write(*s, boost::asio::buffer(d, msg.size()), &handlesessionwrite);
+      if (s != excluded_user)
+	 boost::asio::async_write(*s, boost::asio::buffer(d,msg.size()), 
+				  &handlesessionwrite);
    }
 }

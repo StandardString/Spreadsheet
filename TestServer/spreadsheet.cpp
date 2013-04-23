@@ -9,23 +9,19 @@
 #include <fstream>
 #include "spreadsheet.h"
 #include <boost/thread.hpp>
+#include <boost/lexical_cast.hpp>
 
-
-/*
- * Constructs a spreadsheet with no data in any of its cells.
- */
-spreadsheet::spreadsheet()
-{
-   populate_cells();
-}
 
 /*
  * Constructs a spreadsheet with data in its cells
- * described by the file.
+ * described by the file. If the file does not exist,
+ * the spreadsheet will be empty.
  */
-spreadsheet::spreadsheet(std::string &filename)
+spreadsheet::spreadsheet(std::string &file)
 {
-   populate_cells(filename);
+   filename = file;
+   populate_cells();
+   version = 0;
 }
 
 spreadsheet::~spreadsheet()
@@ -34,14 +30,11 @@ spreadsheet::~spreadsheet()
 }
 
 
-/*
- * Method definitions.
- */
 
 /*
- * Populates the cells of the spreadsheet. The cells are guaranteed
- * to all exist in the std::map "cells" after this method finishes.
- * Empty cells will be mapped to "".
+ * Populates the cells of the spreadsheet.
+ *
+ * filename denotes the file in which the spreadsheet resides.
  *
  * Modifications to the spreadsheet are guaranteed not to begin before
  * the cells have been populated.
@@ -49,63 +42,50 @@ spreadsheet::~spreadsheet()
 void spreadsheet::populate_cells()
 {
    boost::lock_guard<boost::mutex> lock(this->mutex);
-
-   for (int i = 1; i < 100; i++)
-   {
-      for (int j = static_cast<int>('A'); j < static_cast<int>('Z'); j++)
-      {
-	 std::string cell = "";
-	 cell += static_cast<char>(j);
-	 cell += i;
-
-	 //Creates and sets to empty string if DNE,
-	 //does nothing if exists.
-	 this->cells[cell];
-      }
-   }
-}
-
-/*
- * Populates the cells of the spreadsheet. The cells are guaranteed
- * to all exist in the std::map cells after this method finishes.
- * Empty cells will be mapped to "".
- *
- * file should be a reference to an ifstream for which ifstream.open()
- * has been called.
- *
- * Modifications to the spreadsheet are guaranteed not to begin before
- * the cells have been populated.
- */
-void spreadsheet::populate_cells(std::string &filename)
-{
-   boost::lock_guard<boost::mutex> lock(this->mutex);
    std::ifstream file(filename.c_str());
-
+   std::cout << "Loading from file..." << std::endl;
    if (file.is_open())
    {
       while (file.good())
       {
 	 std::string line;
-	 getline(file, line);
-	 std::string vals[2];
-
-	 //Get cell name and value in val[0] and val[1].
-	 std::string cell = line.substr(0, 3);
-	 if (static_cast<char>(cell.at(cell.size()-1)) == ' ')
-	    vals[0] = cell.erase(cell.size()-1, std::string::npos);
-	 try
+	 std::getline(file, line);
+	 if (line.length() > 3)
 	 {
-	    vals[1] = line.substr(4);
-	 }
-	 catch (std::exception& e)
-	 {
-	    vals[1] = "";
-	 }
+	    std::string cellname;
+	    std::string cellvalue;
+	    std::string cell;
 
-	 this->cells[vals[0]] = vals[1];
+	    //Get cell name and value in val[0] and val[1].
+	    try {
+	       cell = line.substr(0, 3);
+	    }
+	    catch (std::out_of_range& e)
+	    {
+	       continue;
+	    }
+	    if (static_cast<char>(cell.at(cell.size()-1)) == ' ')
+	       cellname = cell.erase(cell.size()-1, std::string::npos);
+	    else
+	    {
+	       cellname = cell;
+	    }
+	    try
+	    {
+	       cellvalue = line.substr(4);
+	    }
+	    catch (std::out_of_range& e)
+	    {
+	       cellvalue = "";
+	    }
+
+	    this->cells[cellname] = cellvalue;
+	    std::cout << "Cell: " << cellname 
+		      << "\nValue: " << cellvalue << std::endl;
+	 }
       }
    }
-
+   std::cout << "Exiting populate_cells() " << std::endl;
 }
 
 
@@ -183,25 +163,33 @@ void spreadsheet::increment_version()
  * The spreadsheet is guaranteed not to be modified while
  * the save operation is in progress.
  */
-void spreadsheet::save(std::string filename)
+void spreadsheet::save()
 {
    boost::lock_guard<boost::mutex> lock(this->mutex);
 
    std::ofstream file;
    file.open(filename.c_str());
 
+   std::cout << "Saving file..." << std::endl;
    if (file.is_open())
    {
       for (std::map<std::string, std::string>::iterator it = this->cells.begin();
 	   it != this->cells.end() && file.good(); it++)
       {
-	 std::string cellname = it->first;
-	 if (cellname.size() < 3)
-	    cellname += " ";
+	 if (it->second != "")
+	 {
+	    std::string cellname = it->first;
+	    if (cellname.size() < 3)
+	       cellname += " ";
 
-	 file << ":";
-	 file << it->second;
-	 file << "\n";
+	    file << cellname;
+	    file << ":";
+	    file << it->second;
+	    file << "\n";
+	 
+	    std::cout << "Cell: " << cellname << "\nValue: " 
+		      << it->second << std::endl;
+	 }
       }
    }
 

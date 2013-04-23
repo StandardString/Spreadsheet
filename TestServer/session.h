@@ -25,7 +25,6 @@ class session
 {
 public:
    session(std::string &filename);
-   session();
    ~session();
    std::set<socket_ptr> *users;
    spreadsheet *ss;
@@ -33,7 +32,7 @@ public:
    void add_socket(socket_ptr user);
    void remove_socket(socket_ptr user);
    bool contains_socket(socket_ptr user);
-   void broadcast(std::string &msg);
+   void broadcast(std::string &msg, socket_ptr excluded_user);
 };
 
 #endif

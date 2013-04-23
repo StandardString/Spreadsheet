@@ -35,6 +35,7 @@ class spreadsheet
    std::map< std::string, std::string > cells;
    std::stack< undo_cmd > undo_stack;
    int version;
+   std::string filename;
    boost::mutex mutex;
    void populate_cells(std::string &filename);
    void populate_cells();
@@ -51,7 +52,7 @@ class spreadsheet
 
    std::string to_xml();
 
-   void save(std::string filename);
+   void save();
 
 };
 
