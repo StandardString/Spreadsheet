@@ -333,7 +333,6 @@ private:
 
 	else
 	  {
-
 	    outString = "CHANGE FAIL\nName:" + rname + "\nVersion:" + boost::lexical_cast<std::string>(sessions[name]->ss->get_version()) + "\n";
 	    boost::asio::async_write(nc->socket(), boost::asio::buffer(outString, outString.size()), boost::bind(&tcp_server::handle_write, 
 												     this,  boost::asio::placeholders::error));

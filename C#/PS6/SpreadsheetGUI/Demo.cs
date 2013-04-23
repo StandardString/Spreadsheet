@@ -1,12 +1,14 @@
-﻿// Author:  Bryan K. Smith
-// Class:   CS 3500
-// Date:    10/17/2012
-// Version: 1.3.025
-//
-// Revision History:
-//           1.1.00 - 10/1/2012 - Created new methods to match the updated specification of AbstractSpreadsheet.
-//           1.2.00 - 10/17/2012 - Modified acceptible variable formats and added GUI element.
-//           1.3.00 - 4/15/2013 - Added sockets and connection support.
+﻿/* Author:      Bryan K. Smith
+ * Modified By: Owen Krafft, Dickson Chiu, Austin Nester, and Bryan K. Smith for CS 3505
+ * Class:       CS 3500
+ * Date:        10/17/2012
+ * Version:     1.3.025
+ *
+ * Revision History:
+ *           1.1.00 - 10/1/2012 - Created new methods to match the updated specification of AbstractSpreadsheet.
+ *           1.2.00 - 10/17/2012 - Modified acceptible variable formats and added GUI element.
+ *           1.3.00 - 4/15/2013 - Added sockets and connection support for online spreadsheets.
+ */
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -61,7 +63,7 @@ namespace SS
             spreadsheetPanel1.SetSelection(2, 3);  // Selects C4 by default.
 
             // Creates a new client model that will handle messages to and
-            // from the server.
+            // from the server, and registers an IncomingLineEvent.
             model = new SpreadsheetClient();
             model.IncomingLineEvent += MessageReceived;
 
@@ -73,8 +75,7 @@ namespace SS
             leaveSessionToolStripMenuItem.Enabled = false;
             disconnectToolStripMenuItem.Enabled = false;
 
-            spreadsheetPanel1.Focus();
-            ContentBox.Focus();
+            ContentBox.Focus(); // Gives the content box control focus.
         }
 
         /// <summary>
@@ -92,7 +93,7 @@ namespace SS
             spreadsheetPanel1.SetSelection(2, 3);  // Selects C4 by default.
 
             // Creates a new client model that will handle messages to and
-            // from the server.
+            // from the server, and registers an IncomingLineEvent.
             model = new SpreadsheetClient();
             model.IncomingLineEvent += MessageReceived;
 
@@ -104,8 +105,7 @@ namespace SS
             leaveSessionToolStripMenuItem.Enabled = false;
             disconnectToolStripMenuItem.Enabled = false;
 
-            spreadsheetPanel1.Focus();
-            ContentBox.Focus();
+            ContentBox.Focus(); // Gives the content box control focus.
         }
 
         /// <summary>
@@ -291,7 +291,7 @@ namespace SS
         /// <param name="e"></param>
         private void connectToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            connectForm = new Form2(); // Creates a new connection window.
+            connectForm = new Form2(); // Creates a new customizable connection window.
             // Sets necessary attributes of the connection window.
             connectForm.setMessage("Please enter the IP address and port you wish to connect to.");
             connectForm.setLabels("Address:", "Port:");
@@ -308,7 +308,7 @@ namespace SS
         /// <param name="e"></param>
         private void createSessionToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            connectForm = new Form2(); // Creates a new connection window.
+            connectForm = new Form2(); // Creates a new customizable connection window.
             // Sets the necessary attributes of the connection window.
             connectForm.setMessage("Please enter the name and password of the session you wish to create.");
             connectForm.setLabels("Name:", "Password:");
@@ -325,7 +325,7 @@ namespace SS
         /// <param name="e"></param>
         private void joinExistingToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            connectForm = new Form2(); // Creates a new connection window.
+            connectForm = new Form2(); // Creates a new customizable connection window.
             // Sets the necessary attributes of the connection window.
             connectForm.setMessage("Please enter the name and password of the session you wish to join.");
             connectForm.setLabels("Name:", "Password:");
@@ -346,10 +346,10 @@ namespace SS
             String message = "SAVE\n"; // Prepares an outgoing string.
             message += "Name:" + sessionName + "\n"; // Appends the session name.
 
-            // If the client is in debug mode, it sends the message to the debug window.
-            if (debugging) debugForm.addClientToServer(message);
             try { model.SendMessage(message); } // Attempts to send the message.
             catch (Exception ex) { ErrorBox.Text = ex.Message.ToString(); }
+            // If the client is in debug mode, it sends the message to the debug window.
+            if (debugging) debugForm.addClientToServer(message);
         }
 
         /// <summary>
@@ -364,10 +364,10 @@ namespace SS
             message += "Name:" + sessionName + "\n"; // Appends the session name.
             message += "Version:" + version + "\n"; // Appends the session version.
 
-            // If the client is in debug mode, it sends the message to the debug window.
-            if (debugging) debugForm.addClientToServer(message);
             try { model.SendMessage(message); } // Attempts to send the message.
             catch (Exception ex) { ErrorBox.Text = ex.Message.ToString(); }
+            // If the client is in debug mode, it also sends the message to the debug window.
+            if (debugging) debugForm.addClientToServer(message);
         }
 
         /// <summary>
@@ -380,10 +380,10 @@ namespace SS
             ErrorBox.Invoke(new Action(() => { ErrorBox.Clear(); }));
             // Prepares an outgoing message.
             String message = "LEAVE\nName:" + sessionName + "\n";
-            // If the client is in debug mode, the message is sent to the debug window.
-            if (debugging) debugForm.addClientToServer(message);
             try { model.SendMessage(message); } // Attempts to send the message.
             catch (Exception ex) { ErrorBox.Text = ex.Message.ToString(); }
+            // If the client is in debug mode, the message is also sent to the debug window.
+            if (debugging) debugForm.addClientToServer(message);
 
             SessionBox.Text = "Not connected to any sessions.";
             if (debugging) debugForm.addMessage("You have successfully left the session.");
@@ -407,7 +407,7 @@ namespace SS
         private void disconnectToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (debugging) debugForm.addMessage("Attempting to disconnect from the host server");
-            disconnect();
+            disconnect(); // Disconnects the client from the host server.
             if (debugging) debugForm.addMessage("Successfully disconnected from the host server.");
         }
 
@@ -454,10 +454,10 @@ namespace SS
         /// <param name="e"></param>
         private void ContentBox_TextChanged(object sender, EventArgs e)
         {
-            beingEdited = true;
+            beingEdited = true; // Marks that the cell is currently being edited.
 
-            if (!connected)
-                updateCells(NameBox.Text, ContentBox.Text.ToUpper());
+            if (!connected) // If the client is not connected to the server...
+                updateCells(NameBox.Text, ContentBox.Text.ToUpper()); // Cells are updated on every keypress.
             //else
             //{
             //    String message = "CHANGE\n";
@@ -517,32 +517,35 @@ namespace SS
 
                 updateBoxes(col, row); // Updates the display text boxes.
             }
-            if (connected && e.KeyCode == Keys.Return)
+            if (connected && e.KeyCode == Keys.Return) // If the return key is pressed and the client is connected.
             {
-                String message = "CHANGE\n";
-                message += "Name:" + sessionName + "\n";
-                message += "Version:" + version + "\n";
-                message += "Cell:" + NameBox.Text + "\n";
-                message += "Length:" + ContentBox.Text.Length + "\n";
-                message += ContentBox.Text.ToUpper() + "\n";
+                String message = "CHANGE\n"; // Generates a new outgoing message string.
+                message += "Name:" + sessionName + "\n"; // Appends the session name,
+                message += "Version:" + version + "\n"; // ... the version number,
+                message += "Cell:" + NameBox.Text + "\n"; // ... the name of the modified cell,
+                message += "Length:" + ContentBox.Text.Length + "\n"; // ... the length in characters of the contents,
+                message += ContentBox.Text.ToUpper() + "\n"; // ... and the contents of the modified cell.
 
+                model.SendMessage(message); // Sends the message donw the socket.
+                // If debugging is enabled, the message is also sent to the debug window.
                 if (debugging) debugForm.addClientToServer(message);
-                model.SendMessage(message);
             }
-            if (e.KeyCode == Keys.Delete || e.KeyCode == Keys.Back) // If the delete or return keys are pressed...
+            if (e.KeyCode == Keys.Delete || e.KeyCode == Keys.Back) // If the delete or back keys are pressed...
             {
                 if (ContentBox.Text != "" && beingEdited == false)  // And the cell is not currently being edited...
+                {
                     ContentBox.Clear();                             // Clears the cell contents.
+                    String message = "CHANGE\n"; // Generates an outgoing message.
+                    message += "Name:" + sessionName + "\n"; // Appends the session name,
+                    message += "Version:" + version + "\n"; // ... the version number.
+                    message += "Cell:" + NameBox.Text + "\n"; // ... the name of the modified cell...
+                    message += "Length:" + ContentBox.Text.Length + "\n"; // ... the length, in characters, of the contents,
+                    message += ContentBox.Text.ToUpper() + "\n"; // ... and the content of the modified cell.
 
-                String message = "CHANGE\n";
-                message += "Name:" + sessionName + "\n";
-                message += "Version:" + version + "\n";
-                message += "Cell:" + NameBox.Text + "\n";
-                message += "Length:" + ContentBox.Text.Length + "\n";
-                message += ContentBox.Text.ToUpper() + "\n";
-
-                if (debugging) debugForm.addClientToServer(message);
-                model.SendMessage(message);
+                    model.SendMessage(message); // Sends the message down the socket.
+                    // If debugging is enabled, the message is also sent to the debug window.
+                    if (debugging) debugForm.addClientToServer(message);
+                }
             }
         }
 
@@ -556,38 +559,38 @@ namespace SS
         private void NameBox_KeyDown(object sender, KeyEventArgs e)
         {
             int row, col;
-            String oldName;
+            String oldName; // Storage for the name of the current cell.
+            // If the enter or return keys are pressed while the client is in the name box...
             if (e.KeyCode == Keys.Enter || e.KeyCode == Keys.Return)
             {
-                NameBox.Text = NameBox.Text.ToUpper();
-                spreadsheetPanel1.GetSelection(out col, out row);
-                char column = (char)(col + 65);
-                oldName = column + (row + 1).ToString();
+                NameBox.Text = NameBox.Text.ToUpper(); // Capitalizes the characters of the new cell in the name box.
+                spreadsheetPanel1.GetSelection(out col, out row); // Retrieves the current selection.
+                char column = (char)(col + 65); // Generates a column number, based on the letter of the cell name.
+                oldName = column + (row + 1).ToString(); // And stores the name of the current cell.
 
-                col = ConvertLetterToNumber(NameBox.Text[0]);
+                col = ConvertLetterToNumber(NameBox.Text[0]); // Converts the letter of the new cell into a column number.
+                // Attempts to parse the rest of the cell name as a 32-bit integer.
                 if (Int32.TryParse(NameBox.Text.ToString().Substring(1), out row))
                 {
-                    if (row < 100 && row > 0)
+                    if (row < 100 && row > 0) // If the number is between 1 and 99...
                     {
-                        spreadsheetPanel1.SetSelection(col, row - 1);
+                        spreadsheetPanel1.SetSelection(col, row - 1); // The selection is updated.
 
-                        updateBoxes(col, row - 1);
-                        ContentBox.Focus();
+                        updateBoxes(col, row - 1); // Name, Content, Value, and Error boxes are updated accordingly,
+                        ContentBox.Focus(); // ... and focus is returned to the content box.
                     }
-                    else
+                    else // Otherwise, if the row is out of range...
                     {
-                        ErrorBox.Text = "THAT'S NOT A CELL NAME, DUMBASS! JESUS!";
-
-                        NameBox.Text = oldName;
-                        ContentBox.Focus();
+                        ErrorBox.Text = "Invalid cell name."; // Prints an error.
+                        NameBox.Text = oldName; // Recovers the old cell name,
+                        ContentBox.Focus(); // .. and returns focus to the content box.
                     }
                 }
-                else
+                else // Otherwise, if the parse failed...
                 {
-                    ErrorBox.Text = "THAT'S NOT A CELL NAME, DUMBASS! JESUS!";
-
-                    NameBox.Text = oldName;
-                    ContentBox.Focus();
+                    ErrorBox.Text = "Invalid cell name."; // An error is printed,
+                    NameBox.Text = oldName; // ... the old cell name is recovered,
+                    ContentBox.Focus(); // .. and focus is returned to the content box.
                 }
             }
         }
@@ -690,6 +693,7 @@ namespace SS
                 return;
             }
 
+            // If the client is operating in debug mode, a prepatory message is sent to the debug window.
             if (debugging) debugForm.addMessage("Attempting to establish connection to host server");
             try // Attempts to connect the client to the IP address along the port.
             {
@@ -726,14 +730,13 @@ namespace SS
                 message += "Name:" + name + "\n"; // Appends the session name.
                 message += "Password:" + pass + "\n"; // Appends the password.
 
-                // If the client is in debugging mode, send the message to the debug
-                // window.
-                if (debugging) debugForm.addClientToServer(message);
                 model.SendMessage(message); // Sends the message down the socket.
+                // If the client is in debugging mode, the message is also sent to the debug window.
+                if (debugging) debugForm.addClientToServer(message);
             }
             catch (Exception e)
             {
-                ErrorBox.Text = "In create: " + e.Message.ToString();
+                ErrorBox.Text = e.Message.ToString();
             }
         }
 
@@ -752,10 +755,9 @@ namespace SS
                 message += "Name:" + name + "\n"; // Appends the session name.
                 message += "Password:" + pass + "\n"; // Appends the password.
 
-                // If the client is in debugging mode, send the message to the debug
-                // window.
-                if (debugging) debugForm.addClientToServer(message);
                 model.SendMessage(message); // Sends the message down the socket.
+                // If the client is in debug mode, the message is also sent to the debug window.
+                if (debugging) debugForm.addClientToServer(message);
             }
             catch (Exception e) 
             {
@@ -774,7 +776,7 @@ namespace SS
                 model.Disconnect(); // Closes the socket on the client's end.
                 SessionBox.Text = "Not connected to the host server.";
 
-                clearSpreadsheet();
+                clearSpreadsheet(); // Clears the spreadsheet visually and logically.
 
                 connected = false; // Changes the state of the spreadsheet.
 
@@ -789,7 +791,7 @@ namespace SS
             }
             catch (Exception ex) // Otherwise, if an exception was caught...
             {
-                ErrorBox.Invoke(new Action(() => { ErrorBox.Text = "In Disconnect: " + ex.Message.ToString(); }));
+                ErrorBox.Invoke(new Action(() => { ErrorBox.Text = ex.Message.ToString(); }));
             }
         }
 
@@ -829,8 +831,8 @@ namespace SS
         {
             // Initializes a new, blank spreadsheet.
             ss = new Spreadsheet(s => true, s => s.ToUpper(), "ps6");
-            spreadsheetPanel1.Clear();
-            int col, row;
+            spreadsheetPanel1.Clear(); // Clears the current display.
+            int col, row; // Gets the new selection and updates boxes accordingly.
             spreadsheetPanel1.GetSelection(out col, out row);
             updateBoxes(col, row);
         }
@@ -851,10 +853,10 @@ namespace SS
         /// <param name="line"></param>
         private void MessageReceived(String line)
         {
-            ErrorBox.Invoke(new Action(() => { ErrorBox.Clear(); }));
-            if (line.StartsWith("System.Net"))
+            ErrorBox.Invoke(new Action(() => { ErrorBox.Clear(); })); // Clears the error box.
+            if (line.StartsWith("System.Net")) // If the incoming line starts with "System.Net"...
             {
-                disconnect();
+                disconnect(); // The client received a closing message from the server and disconnects.
                 ErrorBox.Invoke(new Action(() => { ErrorBox.Text = "The server closed unexpectedly."; }));
                 SessionBox.Invoke(new Action(() => { SessionBox.Text = "Not connected to the host server."; }));
                 this.Invoke(new Action(() =>
@@ -868,58 +870,63 @@ namespace SS
                     disconnectToolStripMenuItem.Enabled = false;
                 }));
             }
-            else
+            else // Otherwise, the line is considered valid. 
             {
+                // If the client has debugging enabled, the incoming line is sent to the debugging window.
                 if (debugging) debugForm.addServerToClient(line);
 
+                // If the incoming line begins with a command, the line array is cleared.
                 if (line.StartsWith("CREATE") || line.StartsWith("JOIN") || line.StartsWith("CHANGE")
                     || line.StartsWith("UNDO") || line.StartsWith("UPDATE") || line.StartsWith("SAVE")
                     || line.StartsWith("ERROR"))
                     lines.Clear();
 
-                lines.Add(line);
-                String first = lines[0];
+                lines.Add(line); // Adds the incoming line to the lines array.
+                String first = lines[0]; // Stores the first line in a more intuitive variable.
 
-                // If first line starts with "SOME TAG" and lines.size() is command size
+                // If first line starts with "CREATE OK" and number of lines in the array is 3...
                 if (first.StartsWith("CREATE OK") && lines.Count() == 3)
                 {
-                    String name = lines[1].Substring(5);
+                    String name = lines[1].Substring(5); // Retrieves the session name from the second line.
 
                     if (debugging) debugForm.addMessage(name + " successfully created.");
                     SessionBox.Invoke(new Action(() => { SessionBox.Text = name + " session successfully created."; }));
+
+                    lines.Clear(); // Clears the array of command lines.
                 }
                 else if (first.StartsWith("CREATE FAIL") && lines.Count() == 3)
                 {
-                    String name = lines[1].Substring(5);
-                    String message = lines[1];
+                    String name = lines[1].Substring(5); // Retrieves the session name from the second line.
+                    String message = lines[2];           // Retrieves the error message from the third line.
 
+                    // Prints the error to the client window.
                     ErrorBox.Invoke(new Action(() => { ErrorBox.Text = name + " failed to create: " + message; }));
+
+                    lines.Clear(); // Clears the array of command lines.
                 }
                 else if (first.StartsWith("JOIN OK") && lines.Count() == 5)
                 {
-                    sessionName = lines[1].Substring(5);
-                    version = lines[2].Substring(8);
-                    int result;
-                    int.TryParse(lines[3].Substring(7), out result);
-                    String xml = lines[4].Substring(0, result);
+                    sessionName = lines[1].Substring(5); // Retrieves and stores the session name.
+                    version = lines[2].Substring(8); // Retrieves and stores the version name.
+                    int result; // Creates an integer to store the parsing result,
+                    int.TryParse(lines[3].Substring(7), out result); // ... and attempts to parse the xml length.
+                    String xml = lines[4].Substring(0, result); // Retrieves the xml from the final line.
 
-                    // Save xml into a temporary file.
-                    String path = "temp.ss";
-                    File.Create(path).Dispose();
+                    String path = "temp.ss"; // Creates a file path string.
+                    File.Create(path).Dispose(); // Creates a new empty file at the path.
                     using (FileStream fs = new FileStream(path,
                         FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                     {
-                        TextWriter tw = new StreamWriter(path, true);
-                        tw.WriteLine(xml);
-                        tw.Close();
+                        TextWriter tw = new StreamWriter(path, true); // Sets the file as writable,
+                        tw.WriteLine(xml); // ... and writes the xml string to the file.
+                        tw.Close(); // Closes the file.
                     }
-                    // Load the file into the spreadsheet.
-                    loadSpreadsheet(path);
-                    // Delete the file.
-                    File.Delete(path);
+                    loadSpreadsheet(path);// Loads the file into the spreadsheet.
+                    File.Delete(path); // Deletes the file.
 
                     this.Invoke(new Action(() =>
                     {
+                        // Modifies the visibility of the dropdown menu items under Server.
                         createSessionToolStripMenuItem.Enabled = false;
                         joinExistingToolStripMenuItem.Enabled = false;
                         undoLastToolStripMenuItem.Enabled = true;
@@ -929,149 +936,121 @@ namespace SS
 
                     SessionBox.Invoke(new Action(() => { SessionBox.Text = "Connected To:  \"" + sessionName + "\" Version: " + version; }));
 
-                    lines.Clear();
+                    lines.Clear(); // Clears the array of command lines.
                 }
                 else if (first.StartsWith("JOIN FAIL") && lines.Count() == 3)
                 {
-                    String name = lines[1].Substring(5);
-                    String message = lines[2];
+                    String name = lines[1].Substring(5); // Retrieves the session name from the second line.
+                    String message = lines[2]; // Retrieves the error message from the third line.
 
+                    // Prints the error to the client window.
                     ErrorBox.Invoke(new Action(() => { ErrorBox.Text = "Failed to join " + name + ": " + message; }));
 
-                    lines.Clear();
+                    lines.Clear(); // Clears the array of command lines.
                 }
                 else if (first.StartsWith("CHANGE OK") && lines.Count() == 3)
                 {
-                    String name = lines[1].Substring(5);
-                    version = lines[2].Substring(8);
+                    String name = lines[1].Substring(5); // Retrieves the name of the session from the second line.
+                    version = lines[2].Substring(8); // Retrieves and stores the version number from the third line.
 
-
-                    updateCells(NameBox.Text, ContentBox.Text.ToUpper());
+                    updateCells(NameBox.Text, ContentBox.Text.ToUpper()); // Updates the spreadsheet cells.
 
                     SessionBox.Invoke(new Action(() => { SessionBox.Text = "Connected To:  \"" + sessionName + "\" Version: " + version; }));
                     if (debugging) debugForm.addMessage(name + " was successfully modified.");
 
-                    lines.Clear();
+                    lines.Clear(); // Clears the array of command lines.
                 }
                 else if (first.StartsWith("CHANGE FAIL") && lines.Count() == 3)
                 {
-                    String name = lines[1].Substring(5);
-                    String message = lines[2];
+                    String name = lines[1].Substring(5); // Retrieves the name of the session from the second line.
+                    String message = lines[2]; // Retrieves the error message from the third line.
 
+                    // Prints the error to the client window.
                     ErrorBox.Invoke(new Action(() => { ErrorBox.Text = name + " was unable to be modified: " + message; }));
 
-                    lines.Clear();
+                    lines.Clear(); // Clears the array of command lines.
                 }
                 else if (first.StartsWith("UNDO OK") && lines.Count() == 6)
                 {
-                    // Do something.
-                    String name = lines[1].Substring(5);
-                    version = lines[2].Substring(8);
-                    String cellName = lines[3].Substring(5);
-                    int result;
-                    int.TryParse(lines[4].Substring(7), out result);
-                    String content = lines[5].Substring(0, result);
+                    String name = lines[1].Substring(5); // Retrieves the session name from the second line.
+                    version = lines[2].Substring(8); // Retrieves and stores the version number from the third line.
+                    String cellName = lines[3].Substring(5); // Retrieves the cell name from the fourth line.
+                    int result; // Creates an integer to store the result of parsing.
+                    int.TryParse(lines[4].Substring(7), out result); // Attempts to parse the content length as an integer.
+                    String content = lines[5].Substring(0, result); // Retrieves the cell content from the sixth line.
 
-                    updateCells(cellName, content);
+                    updateCells(cellName, content); // Updates the cells in the spreadsheet.
 
                     SessionBox.Invoke(new Action(() => { SessionBox.Text = "Connected To:  \"" + sessionName + "\" Version: " + version; }));
                     if (debugging) debugForm.addMessage("The last action of " + name + " was successfully undid.");
 
-                    lines.Clear();
+                    lines.Clear(); // Clears the array of command lines.
                 }
                 else if (first.StartsWith("UNDO END") && lines.Count() == 3)
                 {
-                    // Do something.
-                    String name = lines[1].Substring(5);
+                    String name = lines[1].Substring(5); // Retrieves the session name from the second line.
 
+                    // Prints the error to the client window.
                     ErrorBox.Invoke(new Action(() => { ErrorBox.Text = "There are no unsaved changes on " + name + "."; }));
 
-                    lines.Clear();
+                    lines.Clear(); // Clears the array of command lines.
                 }
                 else if (first.StartsWith("UNDO WAIT") && lines.Count() == 3)
                 {
-                    // Do something.
+                    // Prints the error to the client window.
                     ErrorBox.Invoke(new Action(() => { ErrorBox.Text = "Your version is out of date, please wait for an update."; }));
 
-                    lines.Clear();
+                    lines.Clear(); // Clears the array of command lines.
                 }
                 else if (first.StartsWith("UNDO FAIL") && lines.Count() == 3)
                 {
-                    // Do something.
-                    String name = lines[1].Substring(5);
-                    String message = lines[2];
+                    String name = lines[1].Substring(5); // Retrieves the session name from the second line.
+                    String message = lines[2]; // Retrieves the error message from the third line.
 
-                    ErrorBox.Invoke(new Action(() => { ErrorBox.Text = name + " was unable to be undid: " + message; }));
+                    // Prints the error to the client window.
+                    ErrorBox.Invoke(new Action(() => { ErrorBox.Text = "The last action of " + name + " could not be undone: " + message; }));
 
-                    lines.Clear();
+                    lines.Clear(); // Clears the array of command lines.
                 }
                 else if (first.StartsWith("UPDATE") && lines.Count() == 6)
                 {
-                    // Do something.
-                    String name = lines[1].Substring(5);
-                    version = lines[2].Substring(8);
-                    String cellName = lines[3].Substring(5);
-                    int result;
-                    int.TryParse(lines[4].Substring(7), out result);
-                    String content = lines[5].Substring(0, result);
+                    String name = lines[1].Substring(5); // Retrieves the session name from the second line.
+                    version = lines[2].Substring(8); // Retrieves and stores the version number from the third line.
+                    String cellName = lines[3].Substring(5); // Retrieves the cell name from the fourth line.
+                    int result; // Creates an integer to store the parsing result.
+                    int.TryParse(lines[4].Substring(7), out result); // Attempts to parse the fifth line as a number.
+                    String content = lines[5].Substring(0, result); // Retrieves the cell content from the sixth line.
 
-                    // Update the cell and junk.
-                    int row, col; // Establishes variables to store row and column information.
-                    String value;
-                    IEnumerable<string> ToBeUpdated; // Creates an enumerable to store the cells of the spreadsheet to be updated.
-                    try // Attempts to change the contents and value of the cell within the spreadsheet GUI.
-                    {
-                        // Sets the contents and values of the logic cells and stores the returned set in the enumerable.
-                        ToBeUpdated = ss.SetContentsOfCell(cellName, content.ToUpper());
-                        spreadsheetPanel1.GetSelection(out col, out row);     // Retrieves the column and row information of the current selection.
-                        spreadsheetPanel1.GetValue(col, row, out value);      // Gets the value of the currently selected cell.
-                        spreadsheetPanel1.SetValue(col, row, ss.GetCellValue(NameBox.Text).ToString()); // Sets the value of the currently selection.
-                        ValueBox.Text = ss.GetCellValue(NameBox.Text).ToString(); // Updates the text of the box that displays the current cell value.
-
-                        foreach (string cell in ToBeUpdated)  // Updates each of the cells that were directly or indirectly dependent on the current selection.
-                        {
-                            col = ConvertLetterToNumber(cell[0]);            // Convert the letter into a column coordinate.
-                            Int32.TryParse(cell.Substring(1), out row);      // Attempts to parse the rest of the cell name as the row.
-                            spreadsheetPanel1.GetValue(col, row, out value); // Changes the GUI cell to reflect the changes to the spreadsheet logic.
-                            spreadsheetPanel1.SetValue(col, row - 1, ss.GetCellValue(cell).ToString());
-                        }
-                    }
-                    catch (Exception c) // Catches any exceptions thrown and displays a specific message in the error box.
-                    {
-                        string report = c.Message;
-                        ErrorBox.Invoke(new Action(() => { ErrorBox.Text = report; }));
-                    }
+                    updateCells(cellName, content.ToUpper()); // Updates the cells in the spreadsheet.
 
                     SessionBox.Invoke(new Action(() => { SessionBox.Text = "Connected To:  \"" + sessionName + "\" Version: " + version; }));
                     if (debugging) debugForm.addMessage("Spreadsheet was successfully updated.");
 
-                    lines.Clear();
+                    lines.Clear(); // Clears the array of command lines.
                 }
                 else if (first.StartsWith("SAVE OK") && lines.Count() == 2)
                 {
-                    // Do something.
-                    String name = lines[1].Substring(5);
+                    String name = lines[1].Substring(5); // Retrieves the session name from the second line.
 
                     if (debugging) debugForm.addMessage(name + " was successfully saved.");
 
-                    lines.Clear();
+                    lines.Clear(); // Clears the array of command lines.
                 }
                 else if (first.StartsWith("SAVE FAIL") && lines.Count() == 3)
                 {
-                    // Do something.
-                    String name = lines[1].Substring(5);
-                    String message = lines[2];
+                    String name = lines[1].Substring(5); // Retrieves the session name from the second line.
+                    String message = lines[2]; // Retrieves the error message from the third line.
 
-                    ErrorBox.Invoke(new Action(() => { ErrorBox.Text = name + " was unable to be saved: " + message; }));
+                    // Prints the error to the client window.
+                    ErrorBox.Invoke(new Action(() => { ErrorBox.Text = name + " could not be saved: " + message; }));
 
-                    lines.Clear();
+                    lines.Clear(); // Clears the array of command lines.
                 }
                 else if (first.StartsWith("ERROR") && lines.Count() == 1)
                 {
-                    // Do something.
                     ErrorBox.Invoke(new Action(() => { ErrorBox.Text = "Sum terbible erlor has accrued."; }));
 
-                    lines.Clear();
+                    lines.Clear(); // Clears the array of command lines.
                 }
             }
         }
