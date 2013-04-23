@@ -36,6 +36,7 @@ namespace SS
         private bool beingEdited = false;
         private bool connected = false;        // The connection status of the model.
         private bool debugging = false;
+        private bool quickType = false;
 
         private String sessionName = "Test";   // The name of the current session.
         private String version = "-1";         // The model's version of the session.
@@ -211,6 +212,14 @@ namespace SS
             }
         }
 
+        private void enableQuickTypeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (quickType)
+                quickType = false;
+            else
+                quickType = true;
+        }
+
         /// <summary>
         /// Handles the "Close" menu item listed under File.
         /// </summary>
@@ -296,7 +305,7 @@ namespace SS
             connectForm.setMessage("Please enter the IP address and port you wish to connect to.");
             connectForm.setLabels("Address:", "Port:");
             connectForm.setButtonText("Connect", "Cancel");
-            connectForm.setDefaultInput("lab1-20.eng.utah.edu", "1992");
+            connectForm.setDefaultInput("lab1-20.eng.utah.edu", "1984");
             connectForm.setCallback(connect);
             connectForm.Show(); // Shows the connection window.
         }
@@ -330,7 +339,7 @@ namespace SS
             connectForm.setMessage("Please enter the name and password of the session you wish to join.");
             connectForm.setLabels("Name:", "Password:");
             connectForm.setButtonText("Join", "Cancel");
-            connectForm.setDefaultInput("A", "A");
+            connectForm.setDefaultInput("", "");
             connectForm.setCallback(join);
             connectForm.Show(); // Shows the connection window.
         }
@@ -458,18 +467,18 @@ namespace SS
 
             if (!connected) // If the client is not connected to the server...
                 updateCells(NameBox.Text, ContentBox.Text.ToUpper()); // Cells are updated on every keypress.
-            //else
-            //{
-            //    String message = "CHANGE\n";
-            //    message += "Name:" + sessionName + "\n";
-            //    message += "Version:" + version + "\n";
-            //    message += "Cell:" + NameBox.Text + "\n";
-            //    message += "Length:" + ContentBox.Text.Length + "\n";
-            //    message += ContentBox.Text.ToUpper() + "\n";
+            else if (connected && quickType)
+            {
+                String message = "CHANGE\n";
+                message += "Name:" + sessionName + "\n";
+                message += "Version:" + version + "\n";
+                message += "Cell:" + NameBox.Text + "\n";
+                message += "Length:" + ContentBox.Text.Length + "\n";
+                message += ContentBox.Text.ToUpper() + "\n";
 
-            //    if (debugging) debugForm.addClientToServer(message);
-            //    model.SendMessage(message);
-            //}
+                if (debugging) debugForm.addClientToServer(message);
+                model.SendMessage(message);
+            }
         }
 
         /// <summary>
