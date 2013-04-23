@@ -48,6 +48,7 @@
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.howToUseToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.debugToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ContentBox = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.NameBox = new System.Windows.Forms.TextBox();
@@ -56,7 +57,7 @@
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.ErrorBox = new System.Windows.Forms.TextBox();
-            this.debugToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.SessionBox = new System.Windows.Forms.TextBox();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -226,9 +227,18 @@
             this.howToUseToolStripMenuItem.Text = "How To";
             this.howToUseToolStripMenuItem.Click += new System.EventHandler(this.howToUseToolStripMenuItem_Click);
             // 
+            // debugToolStripMenuItem
+            // 
+            this.debugToolStripMenuItem.Name = "debugToolStripMenuItem";
+            this.debugToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl + D";
+            this.debugToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.D)));
+            this.debugToolStripMenuItem.Size = new System.Drawing.Size(157, 22);
+            this.debugToolStripMenuItem.Text = "Debug";
+            this.debugToolStripMenuItem.Click += new System.EventHandler(this.debugToolStripMenuItem_Click);
+            // 
             // ContentBox
             // 
-            this.ContentBox.Location = new System.Drawing.Point(143, 27);
+            this.ContentBox.Location = new System.Drawing.Point(105, 27);
             this.ContentBox.Name = "ContentBox";
             this.ContentBox.Size = new System.Drawing.Size(191, 20);
             this.ContentBox.TabIndex = 2;
@@ -238,7 +248,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(114, 30);
+            this.label1.Location = new System.Drawing.Point(76, 30);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(23, 13);
             this.label1.TabIndex = 4;
@@ -249,14 +259,14 @@
             this.NameBox.BackColor = System.Drawing.SystemColors.Window;
             this.NameBox.Location = new System.Drawing.Point(8, 27);
             this.NameBox.Name = "NameBox";
-            this.NameBox.Size = new System.Drawing.Size(100, 20);
+            this.NameBox.Size = new System.Drawing.Size(62, 20);
             this.NameBox.TabIndex = 6;
             this.NameBox.KeyDown += new System.Windows.Forms.KeyEventHandler(this.NameBox_KeyDown);
             // 
             // Value
             // 
             this.Value.AutoSize = true;
-            this.Value.Location = new System.Drawing.Point(340, 30);
+            this.Value.Location = new System.Drawing.Point(302, 30);
             this.Value.Name = "Value";
             this.Value.Size = new System.Drawing.Size(13, 13);
             this.Value.TabIndex = 7;
@@ -265,7 +275,7 @@
             // ValueBox
             // 
             this.ValueBox.BackColor = System.Drawing.SystemColors.Window;
-            this.ValueBox.Location = new System.Drawing.Point(359, 27);
+            this.ValueBox.Location = new System.Drawing.Point(321, 27);
             this.ValueBox.Name = "ValueBox";
             this.ValueBox.ReadOnly = true;
             this.ValueBox.Size = new System.Drawing.Size(186, 20);
@@ -284,26 +294,29 @@
             // 
             this.ErrorBox.BackColor = System.Drawing.SystemColors.ControlLight;
             this.ErrorBox.ForeColor = System.Drawing.Color.Red;
-            this.ErrorBox.Location = new System.Drawing.Point(551, 27);
+            this.ErrorBox.Location = new System.Drawing.Point(513, 27);
             this.ErrorBox.Name = "ErrorBox";
             this.ErrorBox.ReadOnly = true;
-            this.ErrorBox.Size = new System.Drawing.Size(303, 20);
+            this.ErrorBox.Size = new System.Drawing.Size(341, 20);
             this.ErrorBox.TabIndex = 9;
             // 
-            // debugToolStripMenuItem
+            // SessionBox
             // 
-            this.debugToolStripMenuItem.Name = "debugToolStripMenuItem";
-            this.debugToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl + D";
-            this.debugToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.D)));
-            this.debugToolStripMenuItem.Size = new System.Drawing.Size(157, 22);
-            this.debugToolStripMenuItem.Text = "Debug";
-            this.debugToolStripMenuItem.Click += new System.EventHandler(this.debugToolStripMenuItem_Click);
+            this.SessionBox.BackColor = System.Drawing.SystemColors.ActiveCaption;
+            this.SessionBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.SessionBox.Location = new System.Drawing.Point(513, 8);
+            this.SessionBox.Name = "SessionBox";
+            this.SessionBox.ReadOnly = true;
+            this.SessionBox.Size = new System.Drawing.Size(341, 13);
+            this.SessionBox.TabIndex = 10;
+            this.SessionBox.Text = "Not connected to the host server.";
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(866, 393);
+            this.Controls.Add(this.SessionBox);
             this.Controls.Add(this.ErrorBox);
             this.Controls.Add(this.ValueBox);
             this.Controls.Add(this.Value);
@@ -354,9 +367,9 @@
         private System.Windows.Forms.ToolStripMenuItem connectToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem disconnectToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem debugToolStripMenuItem;
+        private System.Windows.Forms.TextBox SessionBox;
 
 
 
     }
 }
-

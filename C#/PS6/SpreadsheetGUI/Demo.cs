@@ -118,6 +118,7 @@ namespace SS
             updateBoxes(col, row);
             // Sets focus to the cell content box.
             ContentBox.Focus();
+            ContentBox.SelectionStart = ContentBox.Text.Length;
         }
 
         /*
@@ -288,7 +289,7 @@ namespace SS
         /// <param name="e"></param>
         private void connectToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            connectForm = new Form2(this); // Creates a new connection window.
+            connectForm = new Form2(); // Creates a new connection window.
             // Sets necessary attributes of the connection window.
             connectForm.setMessage("Please enter the IP address and port you wish to connect to.");
             connectForm.setLabels("Address:", "Port:");
@@ -305,7 +306,7 @@ namespace SS
         /// <param name="e"></param>
         private void createSessionToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            connectForm = new Form2(this); // Creates a new connection window.
+            connectForm = new Form2(); // Creates a new connection window.
             // Sets the necessary attributes of the connection window.
             connectForm.setMessage("Please enter the name and password of the session you wish to create.");
             connectForm.setLabels("Name:", "Password:");
@@ -322,7 +323,7 @@ namespace SS
         /// <param name="e"></param>
         private void joinExistingToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            connectForm = new Form2(this); // Creates a new connection window.
+            connectForm = new Form2(); // Creates a new connection window.
             // Sets the necessary attributes of the connection window.
             connectForm.setMessage("Please enter the name and password of the session you wish to join.");
             connectForm.setLabels("Name:", "Password:");
@@ -339,6 +340,7 @@ namespace SS
         /// <param name="e"></param>
         private void saveSessionToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            ErrorBox.Invoke(new Action(() => { ErrorBox.Clear(); }));
             String message = "SAVE\n"; // Prepares an outgoing string.
             message += "Name:" + sessionName + "\n"; // Appends the session name.
 
@@ -355,6 +357,7 @@ namespace SS
         /// <param name="e"></param>
         private void undoLastToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            ErrorBox.Invoke(new Action(() => { ErrorBox.Clear(); }));
             String message = "UNDO\n"; // Prepares an outgoing string.
             message += "Name:" + sessionName + "\n"; // Appends the session name.
             message += "Version:" + version + "\n"; // Appends the session version.
@@ -372,6 +375,7 @@ namespace SS
         /// <param name="e"></param>
         private void leaveSessionToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            ErrorBox.Invoke(new Action(() => { ErrorBox.Clear(); }));
             // Prepares an outgoing message.
             String message = "LEAVE\nName:" + sessionName + "\n";
             // If the client is in debug mode, the message is sent to the debug window.
@@ -379,10 +383,11 @@ namespace SS
             try { model.SendMessage(message); } // Attempts to send the message.
             catch (Exception ex) { ErrorBox.Text = ex.Message.ToString(); }
 
-            ErrorBox.Text = "You have successfully left the session.";
+            SessionBox.Text = "Not connected to any sessions.";
+            if (debugging) debugForm.addMessage("You have successfully left the session.");
             sessionName = ""; // Resets the session name.
-            // Initializes a new, blank spreadsheet.
-            ss = new Spreadsheet(s => true, s => s.ToUpper(), "ps6");
+            version = "-1";
+            clearSpreadsheet();
 
             // Modifies menu item visibility under the Server tab.
             createSessionToolStripMenuItem.Enabled = true;
@@ -399,9 +404,9 @@ namespace SS
         /// <param name="e"></param>
         private void disconnectToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ErrorBox.Text = "Attempting to disconnect from the host server";
+            if (debugging) debugForm.addMessage("Attempting to disconnect from the host server");
             disconnect();
-            ErrorBox.Text = "Successfully disconnected from the host server.";
+            if (debugging) debugForm.addMessage("Successfully disconnected from the host server.");
         }
 
         /// <summary>
@@ -447,34 +452,10 @@ namespace SS
         /// <param name="e"></param>
         private void ContentBox_TextChanged(object sender, EventArgs e)
         {
-            if (!connected)
-            {
-                int row, col; // Establishes variables to store row and column information.
-                String value;
-                IEnumerable<string> ToBeUpdated; // Creates an enumerable to store the cells of the spreadsheet to be updated.
-                try // Attempts to change the contents and value of the cell within the spreadsheet GUI.
-                {
-                    // Sets the contents and values of the logic cells and stores the returned set in the enumerable.
-                    ToBeUpdated = ss.SetContentsOfCell(NameBox.Text, ContentBox.Text.ToUpper());
-                    spreadsheetPanel1.GetSelection(out col, out row);     // Retrieves the column and row information of the current selection.
-                    spreadsheetPanel1.GetValue(col, row, out value);      // Gets the value of the currently selected cell.
-                    spreadsheetPanel1.SetValue(col, row, ss.GetCellValue(NameBox.Text).ToString()); // Sets the value of the currently selection.
-                    ValueBox.Text = ss.GetCellValue(NameBox.Text).ToString(); // Updates the text of the box that displays the current cell value.
+            beingEdited = true;
 
-                    foreach (string cell in ToBeUpdated)  // Updates each of the cells that were directly or indirectly dependent on the current selection.
-                    {
-                        col = ConvertLetterToNumber(cell[0]);            // Convert the letter into a column coordinate.
-                        Int32.TryParse(cell.Substring(1), out row);      // Attempts to parse the rest of the cell name as the row.
-                        spreadsheetPanel1.GetValue(col, row, out value); // Changes the GUI cell to reflect the changes to the spreadsheet logic.
-                        spreadsheetPanel1.SetValue(col, row - 1, ss.GetCellValue(cell).ToString());
-                    }
-                }
-                catch (Exception c) // Catches any exceptions thrown and displays a specific message in the error box.
-                {
-                    string report = c.Message;
-                    ErrorBox.Text = report;
-                }
-            }
+            if (!connected)
+                updateCells(NameBox.Text, ContentBox.Text.ToUpper());
         }
 
         /// <summary>
@@ -485,8 +466,6 @@ namespace SS
         private void ContentBox_KeyDown(object sender, KeyEventArgs e)
         {
             int row, col; // Establishes variables to store row and column information.
-
-            if (debugging) debugForm.addClientToServer(e.KeyCode.ToString() + " " + connected.ToString());
 
             if (e.KeyCode == Keys.Left)  // If the left arrow key is pressed, moves the selection 1 column to the left.
             {
@@ -530,11 +509,11 @@ namespace SS
                 message += "Name:" + sessionName + "\n";
                 message += "Version:" + version + "\n";
                 message += "Cell:" + NameBox.Text + "\n";
-                message += "Length:5\n";
-                if (ContentBox.Text.ToUpper() == "")
-                    message += " \n";
-                else
-                    message += ContentBox.Text.ToUpper() + "\n";
+                message += "Length:" + ContentBox.Text.Length + "\n";
+                //if (ContentBox.Text.ToUpper() == "")
+                //    message += " \n";
+                //else
+                message += ContentBox.Text.ToUpper() + "\n";
 
                 if (debugging) debugForm.addClientToServer(message);
                 model.SendMessage(message);
@@ -639,6 +618,42 @@ namespace SS
         }
 
         /// <summary>
+        /// A helper method that updates the logic and display for the spreadsheet cells.
+        /// </summary>
+        /// <param name="cellName"></param>
+        /// <param name="content"></param>
+        private void updateCells(String cellName, string content)
+        {
+            // Update the cell and junk.
+            int row, col; // Establishes variables to store row and column information.
+            String value;
+            IEnumerable<string> ToBeUpdated; // Creates an enumerable to store the cells of the spreadsheet to be updated.
+            try // Attempts to change the contents and value of the cell within the spreadsheet GUI.
+            {
+                // Sets the contents and values of the logic cells and stores the returned set in the enumerable.
+                ToBeUpdated = ss.SetContentsOfCell(cellName, content.ToUpper());
+                spreadsheetPanel1.GetSelection(out col, out row);     // Retrieves the column and row information of the current selection.
+                spreadsheetPanel1.GetValue(col, row, out value);      // Gets the value of the currently selected cell.
+                spreadsheetPanel1.SetValue(col, row, ss.GetCellValue(NameBox.Text).ToString()); // Sets the value of the currently selection.
+                // Updates the text of the box that displays the current cell value.
+                ValueBox.Invoke(new Action(() => { ValueBox.Text = ss.GetCellValue(NameBox.Text).ToString(); }));
+
+                foreach (string cell in ToBeUpdated)  // Updates each of the cells that were directly or indirectly dependent on the current selection.
+                {
+                    col = ConvertLetterToNumber(cell[0]);            // Convert the letter into a column coordinate.
+                    Int32.TryParse(cell.Substring(1), out row);      // Attempts to parse the rest of the cell name as the row.
+                    spreadsheetPanel1.GetValue(col, row, out value); // Changes the GUI cell to reflect the changes to the spreadsheet logic.
+                    spreadsheetPanel1.SetValue(col, row - 1, ss.GetCellValue(cell).ToString());
+                }
+            }
+            catch (Exception c) // Catches any exceptions thrown and displays a specific message in the error box.
+            {
+                string report = c.Message;
+                ErrorBox.Invoke(new Action(() => { ErrorBox.Text = report; }));
+            }
+        }
+
+        /// <summary>
         /// A helper method that connects the server to the specified
         /// IP address along the specified port.
         /// </summary>
@@ -646,6 +661,7 @@ namespace SS
         /// <param name="port"></param>
         private void connect(String IP, String port)
         {
+            ErrorBox.Invoke(new Action(() => { ErrorBox.Clear(); }));
             int result; // Attempts to parse the port string as an integer.
             if (!int.TryParse(port, out result)) 
             {
@@ -653,11 +669,12 @@ namespace SS
                 return;
             }
 
-            ErrorBox.Text = "Attempting to establish connection to host server";
+            if (debugging) debugForm.addMessage("Attempting to establish connection to host server");
             try // Attempts to connect the client to the IP address along the port.
             {
                 model.Connect(IP, result);
-                ErrorBox.Text = "Established connection with the host server.";
+                if (debugging) debugForm.addMessage("Established connection with the host server.");
+                SessionBox.Text = "Connected to the host server.";
 
                 connected = true; // Changes the state of the spreadsheet.
 
@@ -681,6 +698,7 @@ namespace SS
         /// <param name="pass"></param>
         private void create(String name, String pass)
         {
+            ErrorBox.Invoke(new Action(() => { ErrorBox.Clear(); }));
             try
             {
                 String message = "CREATE\n"; // Prepares an outgoing message.
@@ -706,6 +724,7 @@ namespace SS
         /// <param name="pass"></param>
         private void join(String name, String pass)
         {
+            ErrorBox.Invoke(new Action(() => { ErrorBox.Clear(); }));
             try 
             {
                 String message = "JOIN\n"; // Prepares an outgoing message.
@@ -728,9 +747,13 @@ namespace SS
         /// </summary>
         private void disconnect()
         {
+            ErrorBox.Invoke(new Action(() => { ErrorBox.Clear(); }));
             try // Attempts to disconnect the client.
             {
                 model.Disconnect(); // Closes the socket on the client's end.
+                SessionBox.Text = "Not connected to the host server.";
+
+                clearSpreadsheet();
 
                 connected = false; // Changes the state of the spreadsheet.
 
@@ -755,6 +778,7 @@ namespace SS
         /// <param name="filename"></param>
         private void loadSpreadsheet(String filename)
         {
+            ErrorBox.Invoke(new Action(() => { ErrorBox.Clear(); }));
             int row, col; // Establishes variables to store row and column information.
             string value; // Establishes a variable to contain the cell value.
             try
@@ -778,6 +802,19 @@ namespace SS
         }
 
         /// <summary>
+        /// A helper method that clears the cells of a spreadsheet.
+        /// </summary>
+        private void clearSpreadsheet()
+        {
+            // Initializes a new, blank spreadsheet.
+            ss = new Spreadsheet(s => true, s => s.ToUpper(), "ps6");
+            spreadsheetPanel1.Clear();
+            int col, row;
+            spreadsheetPanel1.GetSelection(out col, out row);
+            updateBoxes(col, row);
+        }
+
+        /// <summary>
         /// A helper mehtod that changes the debugging state of the spreadsheet.
         /// </summary>
         /// <param name="state"></param>
@@ -793,6 +830,7 @@ namespace SS
         /// <param name="line"></param>
         private void MessageReceived(String line)
         {
+            ErrorBox.Invoke(new Action(() => { ErrorBox.Clear(); }));
             if (line.StartsWith("System.Net"))
             {
                 disconnect();
@@ -825,7 +863,7 @@ namespace SS
                 {
                     String name = lines[1].Substring(5);
 
-                    ErrorBox.Invoke(new Action(() => { ErrorBox.Text = name + " successfully created."; }));
+                    if (debugging) debugForm.addMessage(name + " successfully created.");
                 }
                 else if (first.StartsWith("CREATE FAIL") && lines.Count() == 3)
                 {
@@ -838,8 +876,9 @@ namespace SS
                 {
                     sessionName = lines[1].Substring(5);
                     version = lines[2].Substring(8);
-                    String length = lines[3].Substring(7);
-                    String xml = lines[4];
+                    int result;
+                    int.TryParse(lines[3].Substring(7), out result);
+                    String xml = lines[4].Substring(0, result);
 
                     // Save xml into a temporary file.
                     String path = "temp.ss";
@@ -860,11 +899,12 @@ namespace SS
                     {
                         createSessionToolStripMenuItem.Enabled = false;
                         joinExistingToolStripMenuItem.Enabled = false;
+                        undoLastToolStripMenuItem.Enabled = true;
                         saveSessionToolStripMenuItem.Enabled = true;
                         leaveSessionToolStripMenuItem.Enabled = true;
                     }));
 
-                    ErrorBox.Invoke(new Action(() => { ErrorBox.Text = "Successfully joined " + sessionName; }));
+                    SessionBox.Invoke(new Action(() => { SessionBox.Text = "Connected To:  \"" + sessionName + "\" Version: " + version; }));
 
                     lines.Clear();
                 }
@@ -882,7 +922,11 @@ namespace SS
                     String name = lines[1].Substring(5);
                     version = lines[2].Substring(8);
 
-                    ErrorBox.Invoke(new Action(() => { ErrorBox.Text = name + " was successfully modified."; }));
+
+                    updateCells(NameBox.Text, ContentBox.Text.ToUpper());
+
+                    SessionBox.Invoke(new Action(() => { SessionBox.Text = "Connected To:  \"" + sessionName + "\" Version: " + version; }));
+                    if (debugging) debugForm.addMessage(name + " was successfully modified.");
 
                     lines.Clear();
                 }
@@ -895,13 +939,20 @@ namespace SS
 
                     lines.Clear();
                 }
-                else if (first.StartsWith("UNDO OK") && lines.Count() == 3)
+                else if (first.StartsWith("UNDO OK") && lines.Count() == 6)
                 {
                     // Do something.
                     String name = lines[1].Substring(5);
                     version = lines[2].Substring(8);
+                    String cellName = lines[3].Substring(5);
+                    int result;
+                    int.TryParse(lines[4].Substring(7), out result);
+                    String content = lines[5].Substring(0, result);
 
-                    ErrorBox.Invoke(new Action(() => { ErrorBox.Text = "The last action of " + name + " was successfully undid."; }));
+                    updateCells(cellName, content);
+
+                    SessionBox.Invoke(new Action(() => { SessionBox.Text = "Connected To:  \"" + sessionName + "\" Version: " + version; }));
+                    if (debugging) debugForm.addMessage("The last action of " + name + " was successfully undid.");
 
                     lines.Clear();
                 }
@@ -937,8 +988,9 @@ namespace SS
                     String name = lines[1].Substring(5);
                     version = lines[2].Substring(8);
                     String cellName = lines[3].Substring(5);
-                    String length = lines[4].Substring(7);
-                    String content = lines[5];
+                    int result;
+                    int.TryParse(lines[4].Substring(7), out result);
+                    String content = lines[5].Substring(0, result);
 
                     // Update the cell and junk.
                     int row, col; // Establishes variables to store row and column information.
@@ -964,10 +1016,11 @@ namespace SS
                     catch (Exception c) // Catches any exceptions thrown and displays a specific message in the error box.
                     {
                         string report = c.Message;
-                        ErrorBox.Text = report;
+                        ErrorBox.Invoke(new Action(() => { ErrorBox.Text = report; }));
                     }
 
-                    ErrorBox.Invoke(new Action(() => { ErrorBox.Text = "Spreadsheet was successfully updated."; }));
+                    SessionBox.Invoke(new Action(() => { SessionBox.Text = "Connected To:  \"" + sessionName + "\" Version: " + version; }));
+                    if (debugging) debugForm.addMessage("Spreadsheet was successfully updated.");
 
                     lines.Clear();
                 }
@@ -976,7 +1029,7 @@ namespace SS
                     // Do something.
                     String name = lines[1].Substring(5);
 
-                    ErrorBox.Invoke(new Action(() => { ErrorBox.Text = name + " was successfully saved."; }));
+                    if (debugging) debugForm.addMessage(name + " was successfully saved.");
 
                     lines.Clear();
                 }
@@ -993,7 +1046,7 @@ namespace SS
                 else if (first.StartsWith("ERROR") && lines.Count() == 1)
                 {
                     // Do something.
-                    ErrorBox.Invoke(new Action(() => { ErrorBox.Text = "Sum terbible erlor has acrued."; }));
+                    ErrorBox.Invoke(new Action(() => { ErrorBox.Text = "Sum terbible erlor has accrued."; }));
 
                     lines.Clear();
                 }

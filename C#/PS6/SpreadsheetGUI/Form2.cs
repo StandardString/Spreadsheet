@@ -11,14 +11,12 @@ namespace SS
 {
     public partial class Form2 : Form
     {
-        Form1 context;
         public delegate void Callback(String name, String password);
         private Callback cb;
 
-        public Form2(Form1 primaryForm)
+        public Form2()
         {
             InitializeComponent();
-            context = primaryForm;
 
             GoButton.Enabled = false;
         }
