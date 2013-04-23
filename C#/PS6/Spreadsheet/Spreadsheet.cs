@@ -178,7 +178,7 @@ namespace SS
                 {
                     writer.WriteStartDocument();                        // Starts the creation of the XML document.
                     writer.WriteStartElement("spreadsheet");            // Writes the "spreadsheet" element.
-                    writer.WriteAttributeString("version", Version);    // Writes and closes the "version" attribute of "spreadsheet."
+                    //writer.WriteAttributeString("version", Version);    // Writes and closes the "version" attribute of "spreadsheet."
 
                     foreach (string name in CellNames)    // For each cell in the enumeration,
                     {  
