@@ -67,9 +67,15 @@ namespace SS
             {
                 CommandBox.Clear();
                 Dialog.Clear();
+                addCommand("clear");
             }
-            if (command == "exit")
+            else if (command == "exit")
                 this.Close();
+            else
+            {
+                CommandBox.Clear();
+                addCommand("Command not recognized.");
+            }
         }
 
         /// <summary>
@@ -78,7 +84,7 @@ namespace SS
         /// <param name="message"></param>
         public void addClientToServer(String message)
         {
-            String s = "C => S  <<" + message + ">>";
+            String s = "C => S  << " + message + " >>";
             Dialog.Invoke(new Action(() =>
             {
                 Dialog.Text += s + "\r\n";
@@ -93,7 +99,7 @@ namespace SS
         /// <param name="message"></param>
         public void addServerToClient(String message)
         {
-            String s = "S => C <<" + message + ">>";
+            String s = "S => C  << " + message + " >>";
             Dialog.Invoke(new Action(() => { 
                 Dialog.Text += s + "\r\n";
                 Dialog.SelectionStart = Dialog.Text.Length;
@@ -105,9 +111,24 @@ namespace SS
         /// 
         /// </summary>
         /// <param name="message"></param>
-        public void addMessage(string message)
+        public void addCommand(String message)
         {
-            String s = "Status <<" + message + ">>";
+            String s = "Cmd      << " + message + " >>";
+            Dialog.Invoke(new Action(() =>
+            {
+                Dialog.Text += s + "\r\n";
+                Dialog.SelectionStart = Dialog.Text.Length;
+                Dialog.ScrollToCaret();
+            }));
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="message"></param>
+        public void addMessage(String message)
+        {
+            String s = "Status   << " + message + " >>";
             Dialog.Invoke(new Action(() =>
             {
                 Dialog.Text += s + "\r\n";

@@ -296,7 +296,7 @@ namespace SS
             connectForm.setMessage("Please enter the IP address and port you wish to connect to.");
             connectForm.setLabels("Address:", "Port:");
             connectForm.setButtonText("Connect", "Cancel");
-            connectForm.setDefaultInput("lab1-27.eng.utah.edu", "1992");
+            connectForm.setDefaultInput("lab1-20.eng.utah.edu", "1992");
             connectForm.setCallback(connect);
             connectForm.Show(); // Shows the connection window.
         }
@@ -330,7 +330,7 @@ namespace SS
             connectForm.setMessage("Please enter the name and password of the session you wish to join.");
             connectForm.setLabels("Name:", "Password:");
             connectForm.setButtonText("Join", "Cancel");
-            connectForm.setDefaultInput("", "");
+            connectForm.setDefaultInput("A", "A");
             connectForm.setCallback(join);
             connectForm.Show(); // Shows the connection window.
         }
@@ -458,6 +458,18 @@ namespace SS
 
             if (!connected)
                 updateCells(NameBox.Text, ContentBox.Text.ToUpper());
+            //else
+            //{
+            //    String message = "CHANGE\n";
+            //    message += "Name:" + sessionName + "\n";
+            //    message += "Version:" + version + "\n";
+            //    message += "Cell:" + NameBox.Text + "\n";
+            //    message += "Length:" + ContentBox.Text.Length + "\n";
+            //    message += ContentBox.Text.ToUpper() + "\n";
+
+            //    if (debugging) debugForm.addClientToServer(message);
+            //    model.SendMessage(message);
+            //}
         }
 
         /// <summary>
@@ -512,9 +524,6 @@ namespace SS
                 message += "Version:" + version + "\n";
                 message += "Cell:" + NameBox.Text + "\n";
                 message += "Length:" + ContentBox.Text.Length + "\n";
-                //if (ContentBox.Text.ToUpper() == "")
-                //    message += " \n";
-                //else
                 message += ContentBox.Text.ToUpper() + "\n";
 
                 if (debugging) debugForm.addClientToServer(message);
@@ -524,6 +533,16 @@ namespace SS
             {
                 if (ContentBox.Text != "" && beingEdited == false)  // And the cell is not currently being edited...
                     ContentBox.Clear();                             // Clears the cell contents.
+
+                String message = "CHANGE\n";
+                message += "Name:" + sessionName + "\n";
+                message += "Version:" + version + "\n";
+                message += "Cell:" + NameBox.Text + "\n";
+                message += "Length:" + ContentBox.Text.Length + "\n";
+                message += ContentBox.Text.ToUpper() + "\n";
+
+                if (debugging) debugForm.addClientToServer(message);
+                model.SendMessage(message);
             }
         }
 
@@ -837,6 +856,7 @@ namespace SS
             {
                 disconnect();
                 ErrorBox.Invoke(new Action(() => { ErrorBox.Text = "The server closed unexpectedly."; }));
+                SessionBox.Invoke(new Action(() => { SessionBox.Text = "Not connected to the host server."; }));
                 this.Invoke(new Action(() =>
                 {
                     // Modifies menu item visibility under the Server tab.
@@ -866,6 +886,7 @@ namespace SS
                     String name = lines[1].Substring(5);
 
                     if (debugging) debugForm.addMessage(name + " successfully created.");
+                    SessionBox.Invoke(new Action(() => { SessionBox.Text = name + " session successfully created."; }));
                 }
                 else if (first.StartsWith("CREATE FAIL") && lines.Count() == 3)
                 {
