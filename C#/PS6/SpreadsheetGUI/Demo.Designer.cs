@@ -67,7 +67,6 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.spreadsheetPanel1.BackColor = System.Drawing.SystemColors.AppWorkspace;
-            this.spreadsheetPanel1.BackgroundImage = global::SS.Properties.Resources.wrath_of_the_lich_king;
             this.spreadsheetPanel1.Location = new System.Drawing.Point(0, 53);
             this.spreadsheetPanel1.Name = "spreadsheetPanel1";
             this.spreadsheetPanel1.Size = new System.Drawing.Size(866, 332);
@@ -155,28 +154,38 @@
             // connectToolStripMenuItem
             // 
             this.connectToolStripMenuItem.Name = "connectToolStripMenuItem";
-            this.connectToolStripMenuItem.Size = new System.Drawing.Size(174, 22);
+            this.connectToolStripMenuItem.ShortcutKeyDisplayString = "";
+            this.connectToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
+            | System.Windows.Forms.Keys.C)));
+            this.connectToolStripMenuItem.Size = new System.Drawing.Size(225, 22);
             this.connectToolStripMenuItem.Text = "Connect";
             this.connectToolStripMenuItem.Click += new System.EventHandler(this.connectToolStripMenuItem_Click);
             // 
             // createSessionToolStripMenuItem
             // 
             this.createSessionToolStripMenuItem.Name = "createSessionToolStripMenuItem";
-            this.createSessionToolStripMenuItem.Size = new System.Drawing.Size(174, 22);
+            this.createSessionToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
+            | System.Windows.Forms.Keys.N)));
+            this.createSessionToolStripMenuItem.Size = new System.Drawing.Size(225, 22);
             this.createSessionToolStripMenuItem.Text = "Create Session";
             this.createSessionToolStripMenuItem.Click += new System.EventHandler(this.createSessionToolStripMenuItem_Click);
             // 
             // joinExistingToolStripMenuItem
             // 
             this.joinExistingToolStripMenuItem.Name = "joinExistingToolStripMenuItem";
-            this.joinExistingToolStripMenuItem.Size = new System.Drawing.Size(174, 22);
+            this.joinExistingToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl + Shift + J";
+            this.joinExistingToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
+            | System.Windows.Forms.Keys.J)));
+            this.joinExistingToolStripMenuItem.Size = new System.Drawing.Size(225, 22);
             this.joinExistingToolStripMenuItem.Text = "Join Session";
             this.joinExistingToolStripMenuItem.Click += new System.EventHandler(this.joinExistingToolStripMenuItem_Click);
             // 
             // saveSessionToolStripMenuItem
             // 
             this.saveSessionToolStripMenuItem.Name = "saveSessionToolStripMenuItem";
-            this.saveSessionToolStripMenuItem.Size = new System.Drawing.Size(174, 22);
+            this.saveSessionToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
+            | System.Windows.Forms.Keys.S)));
+            this.saveSessionToolStripMenuItem.Size = new System.Drawing.Size(225, 22);
             this.saveSessionToolStripMenuItem.Text = "Save Session";
             this.saveSessionToolStripMenuItem.Click += new System.EventHandler(this.saveSessionToolStripMenuItem_Click);
             // 
@@ -185,21 +194,26 @@
             this.undoLastToolStripMenuItem.Name = "undoLastToolStripMenuItem";
             this.undoLastToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl + Z";
             this.undoLastToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Z)));
-            this.undoLastToolStripMenuItem.Size = new System.Drawing.Size(174, 22);
+            this.undoLastToolStripMenuItem.Size = new System.Drawing.Size(225, 22);
             this.undoLastToolStripMenuItem.Text = "Undo Last";
             this.undoLastToolStripMenuItem.Click += new System.EventHandler(this.undoLastToolStripMenuItem_Click);
             // 
             // leaveSessionToolStripMenuItem
             // 
             this.leaveSessionToolStripMenuItem.Name = "leaveSessionToolStripMenuItem";
-            this.leaveSessionToolStripMenuItem.Size = new System.Drawing.Size(174, 22);
+            this.leaveSessionToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
+            | System.Windows.Forms.Keys.L)));
+            this.leaveSessionToolStripMenuItem.Size = new System.Drawing.Size(225, 22);
             this.leaveSessionToolStripMenuItem.Text = "Leave Session";
             this.leaveSessionToolStripMenuItem.Click += new System.EventHandler(this.leaveSessionToolStripMenuItem_Click);
             // 
             // disconnectToolStripMenuItem
             // 
             this.disconnectToolStripMenuItem.Name = "disconnectToolStripMenuItem";
-            this.disconnectToolStripMenuItem.Size = new System.Drawing.Size(174, 22);
+            this.disconnectToolStripMenuItem.ShortcutKeyDisplayString = "Ctrl + Shift + D";
+            this.disconnectToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
+            | System.Windows.Forms.Keys.D)));
+            this.disconnectToolStripMenuItem.Size = new System.Drawing.Size(225, 22);
             this.disconnectToolStripMenuItem.Text = "Disconnect";
             this.disconnectToolStripMenuItem.Click += new System.EventHandler(this.disconnectToolStripMenuItem_Click);
             // 
