@@ -141,15 +141,19 @@ bool spreadsheet::attempt_modify(std::string &cell, std::string &value, int vnum
  *
  * This method is threadsafe.
  */
-bool spreadsheet::attempt_undo(int vnum, std::string *cellname, 
+int spreadsheet::attempt_undo(int vnum, std::string *cellname, 
 			       std::string *cellvalue)
 {
 
    boost::lock_guard<boost::mutex> lock(this->mutex);
 
    if (vnum != this->version)
-      return false;
+      return 0;
 
+   if (this->undo_stack.empty())
+     {
+       return -1;
+     }
    undo_cmd cmd = this->undo_stack.top();
 
    this->cells[cmd.cell] = cmd.value;
@@ -159,7 +163,7 @@ bool spreadsheet::attempt_undo(int vnum, std::string *cellname,
 
    this->undo_stack.pop();
 
-   return true;
+   return 1;
 }
 
 
@@ -216,7 +220,7 @@ std::string spreadsheet::to_xml()
 {
    boost::lock_guard<boost::mutex> lock(this->mutex);
 
-   std::string result = "<?xml version=""1.0"" encoding=""utf-8""?>";
+   std::string result = "<?xml version=\"1.0\" encoding=\"utf-8\"?>";
    result += "<spreadsheet>";
 
    for (std::map<std::string, std::string>::iterator it = this->cells.begin();
@@ -242,4 +246,9 @@ std::string spreadsheet::to_xml()
 
    return result;
 
+}
+
+int spreadsheet::get_version()
+{
+  return this->version;
 }

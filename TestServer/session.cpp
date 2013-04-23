@@ -16,9 +16,10 @@ typedef boost::shared_ptr<boost::asio::ip::tcp::socket> socket_ptr;
  * Constructs an empty session. The underlying spreadsheet
  * is initialized with empty cells.
  */
-session::session() : ss()
+session::session() : ss(new spreadsheet())
 {
    session::users = new std::set<socket_ptr>();
+   ss = new spreadsheet();
 }
 
 
@@ -26,10 +27,9 @@ session::session() : ss()
  * Constructs an empty session from the saved spreadsheet file
  * denoted by filename.
  */
-session::session(std::string &filename) : ss(filename)
+session::session(std::string &filename) : ss(new spreadsheet(filename))
 {
    session::users = new std::set<socket_ptr>();
-   
 }
 
 /*
@@ -40,6 +40,7 @@ session::session(std::string &filename) : ss(filename)
 session::~session()
 {
    delete session::users;
+   delete ss;
 }
 
 /*
@@ -63,7 +64,14 @@ void session::remove_socket(socket_ptr user)
  */
 bool session::contains_socket(socket_ptr user)
 {
-   return (session::users->find(user) != session::users->end());
+  for (std::set<socket_ptr>::iterator it = users->begin();
+       it != users->end(); it++)
+    {
+      if (&(*(*it)) == (&(*user)))
+	  return true;
+    }
+  
+  return false;
 }
 
 void handlesessionwrite(const boost::system::error_code &err, size_t size)

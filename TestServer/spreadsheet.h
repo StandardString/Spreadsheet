@@ -45,8 +45,9 @@ class spreadsheet
    ~spreadsheet();
 
    bool attempt_modify(std::string &cell, std::string &value, int vnum);
-   bool attempt_undo(int vnum, std::string *cellname, std::string *cellvalue);
+   int attempt_undo(int vnum, std::string *cellname, std::string *cellvalue);
    void increment_version();
+   int get_version();
 
    std::string to_xml();
 
