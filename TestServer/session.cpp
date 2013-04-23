@@ -67,7 +67,7 @@ bool session::contains_socket(socket_ptr user)
   for (std::set<socket_ptr>::iterator it = users->begin();
        it != users->end(); it++)
     {
-      if (&(*(*it)) == (&(*user)))
+       if ((*it) == user)
 	  return true;
     }
   
