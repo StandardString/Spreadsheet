@@ -28,7 +28,7 @@ public:
    session();
    ~session();
    std::set<socket_ptr> *users;
-   spreadsheet ss;
+   spreadsheet *ss;
    
    void add_socket(socket_ptr user);
    void remove_socket(socket_ptr user);
