@@ -32,7 +32,7 @@ public:
    
    void add_socket(socket_ptr user);
    void remove_socket(socket_ptr user);
-   bool contains_socket(boost::asio::ip::tcp::socket* user);
+   bool contains_socket(socket_ptr user);
    void broadcast(std::string &msg);
 };
 

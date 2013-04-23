@@ -53,7 +53,7 @@ public:
     return pointer(new tcp_connection(io_service));
   }
 
-  tcp::socket& socket()
+  socket_ptr socket()
   {
     return socket_;
   }
@@ -64,11 +64,11 @@ public:
 
 private:
   tcp_connection(boost::asio::io_service& io_service)
-    : socket_(io_service)
+     : socket_(new tcp::socket(io_service))
   {
   }
 
-  tcp::socket socket_;
+  socket_ptr socket_;
  
  
 };
@@ -113,7 +113,7 @@ private:
     tcp_connection::pointer new_connection =
       tcp_connection::create(acceptor_.io_service());
 
-    acceptor_.async_accept(new_connection->socket(),
+    acceptor_.async_accept((*new_connection->socket()),
 			   boost::bind(&tcp_server::handle_accept, this, new_connection,
 				       boost::asio::placeholders::error));
     
@@ -129,7 +129,7 @@ private:
 	//START ASYNC READ ON THAT CONNECTION
 	//Reads the socket until it encounters a new line character, at which point it goes to the 
 	//handle_read function and sets up continued listening for that socket.
-	boost::asio::async_read_until(new_connection->socket(),
+	 boost::asio::async_read_until((*new_connection->socket()),
 				      b,
 				      '\n',
 				      boost::bind(&tcp_server::handle_read, this, new_connection,
@@ -153,7 +153,7 @@ private:
       {
 	//Whenever the read runs into a new line character, the function starts reading again to accept any
 	//new messsages from the client.
-	boost::asio::async_read_until(new_connection->socket(),
+	 boost::asio::async_read_until((*new_connection->socket()),
 				      b,
 				      '\n',
 				      boost::bind(&tcp_server::handle_read, this, new_connection,boost::asio::placeholders::error));
@@ -187,7 +187,8 @@ private:
 	if (boost::filesystem::exists(name))
 	  {
 	    outString = "CREATE FAIL\nName:" + rname + "\nSpreadsheet already exists!\n";
-     boost::asio::async_write(nc->socket(), boost::asio::buffer(outString, outString.size()), boost::bind(&tcp_server::handle_write, this,  boost::asio::placeholders::error));					   						 
+	    boost::asio::async_write((*nc->socket()), boost::asio::buffer(outString, outString.size()), boost::bind(&tcp_server::handle_write, 
+														    this,  boost::asio::placeholders::error));					   						 
             commandVector.clear();
 	    return;
 	  }
@@ -203,7 +204,7 @@ private:
 	    myfile.close();
 	  }
 	outString = "CREATE OK\nName:" + rname + "\nPassword:" + password + "\n";
-	boost::asio::async_write(nc->socket(), boost::asio::buffer(outString), boost::bind(&tcp_server::handle_write, this,  boost::asio::placeholders::error));					   						 
+	boost::asio::async_write((*nc->socket()), boost::asio::buffer(outString), boost::bind(&tcp_server::handle_write, this,  boost::asio::placeholders::error));					   						 
 	commandVector.clear();
 	return;
       }
@@ -221,7 +222,7 @@ private:
       if (!boost::filesystem::exists(pname))
 	{
 	  outString =  "JOIN FAIL\nName:" + rname + "\nSession does not exist!\n";
-	  boost::asio::async_write(nc->socket(), boost::asio::buffer(outString), boost::bind(&tcp_server::handle_write, 
+	  boost::asio::async_write((*nc->socket()), boost::asio::buffer(outString), boost::bind(&tcp_server::handle_write, 
 													       this,  boost::asio::placeholders::error));
 	  commandVector.clear();
 	  return;
@@ -238,30 +239,38 @@ private:
       if (session_password != password)
 	{
 	  outString =  "JOIN FAIL\nName:" + rname + "\nSession password was incorrect!\n";
-	  boost::asio::async_write(nc->socket(), boost::asio::buffer(outString), boost::bind(&tcp_server::handle_write, 
+	  boost::asio::async_write((*nc->socket()), boost::asio::buffer(outString), boost::bind(&tcp_server::handle_write, 
 											     this,  boost::asio::placeholders::error));
 	  commandVector.clear();
 	  return;
 	}
 	
       
-
-      bool pass = true;
       std::cout << "NAME: " << name << std::endl;
       std::cout << "PASSWORD: " << password << std::endl;
       
       
   
+      //Create the session if it does not exist already
       if (sessions.find(name) == sessions.end())
 	{
-	  session_ptr ssptr(new session());
+	   //Check for a spreadsheet for this session already saved
+	   if (boost::filesystem::exists(name))
+	   {
+	      session_ptr ssptr(new session(name));
+	      sessions.insert(std::pair<std::string, session_ptr>(name, ssptr));
+	   }
+	   else
+	   {
+	      session_ptr ssptr(new session());
+	      sessions.insert(std::pair<std::string, session_ptr>(name, ssptr));
+	   }
+	   
 
-	  sessions.insert(std::pair<std::string, session_ptr>(name, ssptr));
+	  
 	}
-      std::cout << "Created session" << std::endl;
-      tcp::socket *s = &nc->socket();
-      socket_ptr s_ptr(s);
-      sessions[name]->add_socket(s_ptr);
+
+      sessions[name]->add_socket(nc->socket());
       std::cout << "Added socket to session. " << std::endl;
 
 
@@ -270,7 +279,7 @@ private:
 	"\nLength:" + boost::lexical_cast<std::string>(xml.length()) +  "\n" + xml + "\n";
 
       std::cout << outString << std::endl;
-      boost::asio::async_write(nc->socket(), boost::asio::buffer(outString), boost::bind(&tcp_server::handle_write, 
+      boost::asio::async_write((*nc->socket()), boost::asio::buffer(outString), boost::bind(&tcp_server::handle_write, 
 											 this,  boost::asio::placeholders::error));			   
 
       std::cout << "Version#: " << sessions[name]->ss->get_version() << std::endl;
@@ -292,17 +301,16 @@ private:
       if (sessions.find(name) == sessions.end())
 	{
 	  outString = "CHANGE FAIL\nName:" + rname + "\nSession does not exist.\n";
-	  boost::asio::async_write(nc->socket(), boost::asio::buffer(outString, outString.size()), boost::bind(&tcp_server::handle_write, 
+	  boost::asio::async_write((*nc->socket()), boost::asio::buffer(outString, outString.size()), boost::bind(&tcp_server::handle_write, 
 												     this,  boost::asio::placeholders::error));
 	  commandVector.clear();
 	  return;
 	}
 
-      if (!sessions[name]->contains_socket(&nc->socket()))
+      if (!sessions[name]->contains_socket(nc->socket()))
 	{
-	  std::cout << "User = " << &nc->socket() << std::endl;
 	  outString = "CHANGE FAIL\nName:" + rname + "\nYou do not have permission to edit this session.\n";
-	  boost::asio::async_write(nc->socket(), boost::asio::buffer(outString, outString.size()), boost::bind(&tcp_server::handle_write, 
+	  boost::asio::async_write((*nc->socket()), boost::asio::buffer(outString, outString.size()), boost::bind(&tcp_server::handle_write, 
 												     this,  boost::asio::placeholders::error));
 	  commandVector.clear();
 	  return;
@@ -332,7 +340,7 @@ private:
 	  {
 	    outString = "CHANGE OK\nName:" + rname + "\nVersion:" + boost::lexical_cast<std::string>(sessions[name]->ss->get_version()) + "\n";
 	    std::cout << outString << std::endl;
-	    boost::asio::async_write(nc->socket(), boost::asio::buffer(outString), boost::bind(&tcp_server::handle_write, 
+	    boost::asio::async_write((*nc->socket()), boost::asio::buffer(outString), boost::bind(&tcp_server::handle_write, 
 											       this,  boost::asio::placeholders::error));
 	    std::string broadcast_string = "UPDATE\nName:" + rname + "\nVersion:" + boost::lexical_cast<std::string>(sessions[name]->ss->get_version()) + "\nCell:" + cell + "\nLength:" + boost::lexical_cast<std::string>(content.length()) + "\n" + content;
 	    sessions[name]->broadcast(broadcast_string);
@@ -345,7 +353,7 @@ private:
 	  {
 
 	    outString = "CHANGE FAIL\nName:" + rname + "\nVersion:" + boost::lexical_cast<std::string>(sessions[name]->ss->get_version()) + "\n";
-	    boost::asio::async_write(nc->socket(), boost::asio::buffer(outString, outString.size()), boost::bind(&tcp_server::handle_write, 
+	    boost::asio::async_write((*nc->socket()), boost::asio::buffer(outString, outString.size()), boost::bind(&tcp_server::handle_write, 
 												     this,  boost::asio::placeholders::error));
 	    commandVector.clear();
 	    return;
@@ -366,16 +374,16 @@ private:
       if (sessions.find(name) == sessions.end())
 	{
 	  outString = "UNDO FAIL\nName:" + rname + "\nSession does not exist.\n";
-	  boost::asio::async_write(nc->socket(), boost::asio::buffer(outString, outString.size()), boost::bind(&tcp_server::handle_write, 
+	  boost::asio::async_write((*nc->socket()), boost::asio::buffer(outString, outString.size()), boost::bind(&tcp_server::handle_write, 
 												     this,  boost::asio::placeholders::error));
 	  commandVector.clear();
 	  return;
 	}
 
-      if (!sessions[name]->contains_socket(&nc->socket()))
+      if (!sessions[name]->contains_socket(nc->socket()))
 	{
 	  outString = "UNDO FAIL\nName:" + rname + "\nYou do not have permission to edit this session.\n";
-	  boost::asio::async_write(nc->socket(), boost::asio::buffer(outString, outString.size()), boost::bind(&tcp_server::handle_write, 
+	  boost::asio::async_write((*nc->socket()), boost::asio::buffer(outString, outString.size()), boost::bind(&tcp_server::handle_write, 
 												     this,  boost::asio::placeholders::error));
 	  commandVector.clear();
 	  return;
@@ -391,7 +399,7 @@ private:
       	if(sessions[name]->ss->attempt_undo(std::atoi(version.c_str()),cellname, cellvalue) == 1)
 	  {
 	    outString = "UNDO OK\nName:" + rname + "\nVersion:" + boost::lexical_cast<std::string>(sessions[name]->ss->get_version()) + "\n";
-	    boost::asio::async_write(nc->socket(), boost::asio::buffer(outString, outString.size()), boost::bind(&tcp_server::handle_write, 
+	    boost::asio::async_write((*nc->socket()), boost::asio::buffer(outString, outString.size()), boost::bind(&tcp_server::handle_write, 
 												     this,  boost::asio::placeholders::error));
 
 	    std::string broadcast_string = "UPDATE\nName:" + rname + "\nVersion:" + boost::lexical_cast<std::string>(sessions[name]->ss->get_version()) + "\nCell:" + *cellname + "\nLength:" + boost::lexical_cast<std::string>(cellvalue->length()) + "\n" + *cellvalue;
@@ -405,7 +413,7 @@ private:
 	  {
 
 	    outString = "UNDO END\nName:" + rname + "\nVersion:" + boost::lexical_cast<std::string>(sessions[name]->ss->get_version()) + "\n";
-	    boost::asio::async_write(nc->socket(), boost::asio::buffer(outString, outString.size()), boost::bind(&tcp_server::handle_write, 
+	    boost::asio::async_write((*nc->socket()), boost::asio::buffer(outString, outString.size()), boost::bind(&tcp_server::handle_write, 
 												     this,  boost::asio::placeholders::error));
 	    commandVector.clear();
 	    return;
@@ -414,7 +422,7 @@ private:
 	else
 	  {
 	    outString = "UNDO WAIT\nName:" + rname + "\nVersion:" + boost::lexical_cast<std::string>(sessions[name]->ss->get_version()) + "\n";
-	    boost::asio::async_write(nc->socket(), boost::asio::buffer(outString, outString.size()), boost::bind(&tcp_server::handle_write, 
+	    boost::asio::async_write((*nc->socket()), boost::asio::buffer(outString, outString.size()), boost::bind(&tcp_server::handle_write, 
 												     this,  boost::asio::placeholders::error));
 	    commandVector.clear();
 	    return;
@@ -430,30 +438,34 @@ private:
       //parse name
       std::string name = commandVector[1].substr(5) + ".ss";
       std::string rname = commandVector[1].substr(5);
+
+      //Fail conditions: session does not exist or user is not in session
       if (sessions.find(name) == sessions.end())
 	{
 	  outString = "SAVE FAIL\nName:" + rname + "\nSession does not exist.\n";
-	  boost::asio::async_write(nc->socket(), boost::asio::buffer(outString, outString.size()), boost::bind(&tcp_server::handle_write, 
+	  boost::asio::async_write((*nc->socket()), boost::asio::buffer(outString, outString.size()), boost::bind(&tcp_server::handle_write, 
 												     this,  boost::asio::placeholders::error));
 	  commandVector.clear();
 	  return;
 	}
 
-      if (!sessions[name]->contains_socket(&nc->socket()))
+      if (!sessions[name]->contains_socket(nc->socket()))
 	{
 	  outString = "SAVE FAIL\nName:" + rname + "\nYou do not have permission to edit this session.\n";
-	  boost::asio::async_write(nc->socket(), boost::asio::buffer(outString, outString.size()), boost::bind(&tcp_server::handle_write, 
+	  boost::asio::async_write((*nc->socket()), boost::asio::buffer(outString, outString.size()), boost::bind(&tcp_server::handle_write, 
 												     this,  boost::asio::placeholders::error));
 	  commandVector.clear();
 	  return;
 	}
 
+
+      //If we got here, everything is good. Save the spreadsheet.
       std::cout << "NAME: " << name << std::endl;
 
 	
 	sessions[name]->ss->save(name);
 	outString = "SAVE OK\nName:" + rname + "\n";
-	boost::asio::async_write(nc->socket(), boost::asio::buffer(outString, outString.size()), boost::bind(&tcp_server::handle_write, 
+	boost::asio::async_write((*nc->socket()), boost::asio::buffer(outString, outString.size()), boost::bind(&tcp_server::handle_write, 
 												     this,  boost::asio::placeholders::error));
 	commandVector.clear();
 	return;
@@ -474,7 +486,7 @@ private:
 	  return;
 	}
 
-      if (!sessions[name]->contains_socket(&nc->socket()))
+      if (!sessions[name]->contains_socket(nc->socket()))
 	{
 	  commandVector.clear();
 	  return;
@@ -482,7 +494,7 @@ private:
 
       
 
-      sessions[name]->remove_socket(socket_ptr(&nc->socket()));
+      sessions[name]->remove_socket(nc->socket());
 
 	if (sessions[name]->users->empty())
 	  {

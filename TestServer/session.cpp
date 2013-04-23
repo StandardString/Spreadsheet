@@ -62,12 +62,12 @@ void session::remove_socket(socket_ptr user)
 /*
  * Returns true if this session contains the socket.
  */
-bool session::contains_socket(boost::asio::ip::tcp::socket *user)
+bool session::contains_socket(socket_ptr user)
 {
   for (std::set<socket_ptr>::iterator it = users->begin();
        it != users->end(); it++)
     {
-      if (&(*(*it)) == user)
+       if ((*it) == user)
 	  return true;
     }
   
