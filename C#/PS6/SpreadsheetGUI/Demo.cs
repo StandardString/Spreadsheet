@@ -528,16 +528,34 @@ namespace SS
             }
             if (connected && e.KeyCode == Keys.Return) // If the return key is pressed and the client is connected.
             {
-                String message = "CHANGE\n"; // Generates a new outgoing message string.
-                message += "Name:" + sessionName + "\n"; // Appends the session name,
-                message += "Version:" + version + "\n"; // ... the version number,
-                message += "Cell:" + NameBox.Text + "\n"; // ... the name of the modified cell,
-                message += "Length:" + ContentBox.Text.Length + "\n"; // ... the length in characters of the contents,
-                message += ContentBox.Text.ToUpper() + "\n"; // ... and the contents of the modified cell.
+                String oldContent;
+                spreadsheetPanel1.GetSelection(out col, out row);
+                spreadsheetPanel1.GetValue(col, row, out oldContent);      // Gets the value of the currently selected cell.
 
-                model.SendMessage(message); // Sends the message donw the socket.
-                // If debugging is enabled, the message is also sent to the debug window.
-                if (debugging) debugForm.addClientToServer(message);
+                String result;
+                result = updateCells(NameBox.Text, ContentBox.Text.ToUpper());
+                updateBoxes(col, row);
+                if (result != "Cells were successfully updated.")
+                {
+                    // Revert to old value and throw exception to error box.
+                    updateCells(NameBox.Text, oldContent);
+                    updateBoxes(col, row);
+
+                    ErrorBox.Text = result;
+                }
+                else
+                {
+                    String message = "CHANGE\n"; // Generates a new outgoing message string.
+                    message += "Name:" + sessionName + "\n"; // Appends the session name,
+                    message += "Version:" + version + "\n"; // ... the version number,
+                    message += "Cell:" + NameBox.Text + "\n"; // ... the name of the modified cell,
+                    message += "Length:" + ContentBox.Text.Length + "\n"; // ... the length in characters of the contents,
+                    message += ContentBox.Text.ToUpper() + "\n"; // ... and the contents of the modified cell.
+
+                    model.SendMessage(message); // Sends the message donw the socket.
+                    // If debugging is enabled, the message is also sent to the debug window.
+                    if (debugging) debugForm.addClientToServer(message);
+                } 
             }
             if (e.KeyCode == Keys.Delete || e.KeyCode == Keys.Back) // If the delete or back keys are pressed...
             {
@@ -655,7 +673,7 @@ namespace SS
         /// </summary>
         /// <param name="cellName"></param>
         /// <param name="content"></param>
-        private void updateCells(String cellName, string content)
+        private string updateCells(String cellName, string content)
         {
             // Update the cell and junk.
             int row, col; // Establishes variables to store row and column information.
@@ -678,11 +696,14 @@ namespace SS
                     spreadsheetPanel1.GetValue(col, row, out value); // Changes the GUI cell to reflect the changes to the spreadsheet logic.
                     spreadsheetPanel1.SetValue(col, row - 1, ss.GetCellValue(cell).ToString());
                 }
+
+                return "Cells were successfully updated.";
             }
             catch (Exception c) // Catches any exceptions thrown and displays a specific message in the error box.
             {
                 string report = c.Message;
                 ErrorBox.Invoke(new Action(() => { ErrorBox.Text = report; }));
+                return report;
             }
         }
 
