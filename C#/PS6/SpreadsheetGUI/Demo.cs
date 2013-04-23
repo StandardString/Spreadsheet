@@ -830,6 +830,7 @@ namespace SS
             catch (Exception c)  // Catches any exceptions that are thrown and creates a message box to display it.
             {
                 MessageBox.Show("Could not read file from disk. \nOriginal error: " + c.Message, "Open", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                leaveSessionToolStripMenuItem_Click(this, new EventArgs());
             }
         }
 
