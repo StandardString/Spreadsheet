@@ -73,6 +73,7 @@ namespace SS
             leaveSessionToolStripMenuItem.Enabled = false;
             disconnectToolStripMenuItem.Enabled = false;
 
+            spreadsheetPanel1.Focus();
             ContentBox.Focus();
         }
 
@@ -103,6 +104,7 @@ namespace SS
             leaveSessionToolStripMenuItem.Enabled = false;
             disconnectToolStripMenuItem.Enabled = false;
 
+            spreadsheetPanel1.Focus();
             ContentBox.Focus();
         }
 
