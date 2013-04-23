@@ -170,6 +170,7 @@ private:
   //This function splits incoming messages from the client into their respective necessary actions.
   void incomingMessages(std::string msg, tcp_connection::pointer nc)
   {
+     boost::lock_guard<boost::mutex> lock(nc->mutex);
     std::string outString;
     //Pushes the messsage into the vector, to keep track of how long each message is.
     commandVector.push_back(msg);
@@ -297,7 +298,7 @@ private:
 	  return;
 	}
 
-      if (!sessions[name]->contains_socket(socket_ptr(&nc->socket())))
+      if (!sessions[name]->contains_socket(&nc->socket()))
 	{
 	  std::cout << "User = " << &nc->socket() << std::endl;
 	  outString = "CHANGE FAIL\nName:" + rname + "\nYou do not have permission to edit this session.\n";
@@ -333,7 +334,8 @@ private:
 	    std::cout << outString << std::endl;
 	    boost::asio::async_write(nc->socket(), boost::asio::buffer(outString), boost::bind(&tcp_server::handle_write, 
 											       this,  boost::asio::placeholders::error));
-	   
+	    std::string broadcast_string = "UPDATE\nName:" + rname + "\nVersion:" + boost::lexical_cast<std::string>(sessions[name]->ss->get_version()) + "\nCell:" + cell + "\nLength:" + boost::lexical_cast<std::string>(content.length()) + "\n" + content;
+	    sessions[name]->broadcast(broadcast_string);
 	    commandVector.clear();
 	    return;
 	    
@@ -370,7 +372,7 @@ private:
 	  return;
 	}
 
-      if (!sessions[name]->contains_socket(socket_ptr(&nc->socket())))
+      if (!sessions[name]->contains_socket(&nc->socket()))
 	{
 	  outString = "UNDO FAIL\nName:" + rname + "\nYou do not have permission to edit this session.\n";
 	  boost::asio::async_write(nc->socket(), boost::asio::buffer(outString, outString.size()), boost::bind(&tcp_server::handle_write, 
@@ -391,6 +393,9 @@ private:
 	    outString = "UNDO OK\nName:" + rname + "\nVersion:" + boost::lexical_cast<std::string>(sessions[name]->ss->get_version()) + "\n";
 	    boost::asio::async_write(nc->socket(), boost::asio::buffer(outString, outString.size()), boost::bind(&tcp_server::handle_write, 
 												     this,  boost::asio::placeholders::error));
+
+	    std::string broadcast_string = "UPDATE\nName:" + rname + "\nVersion:" + boost::lexical_cast<std::string>(sessions[name]->ss->get_version()) + "\nCell:" + *cellname + "\nLength:" + boost::lexical_cast<std::string>(cellvalue->length()) + "\n" + *cellvalue;
+	    sessions[name]->broadcast(broadcast_string);
 	    commandVector.clear();
 	    return;
 	    
@@ -434,7 +439,7 @@ private:
 	  return;
 	}
 
-      if (!sessions[name]->contains_socket(socket_ptr(&nc->socket())))
+      if (!sessions[name]->contains_socket(&nc->socket()))
 	{
 	  outString = "SAVE FAIL\nName:" + rname + "\nYou do not have permission to edit this session.\n";
 	  boost::asio::async_write(nc->socket(), boost::asio::buffer(outString, outString.size()), boost::bind(&tcp_server::handle_write, 
@@ -469,7 +474,7 @@ private:
 	  return;
 	}
 
-      if (!sessions[name]->contains_socket(socket_ptr(&nc->socket())))
+      if (!sessions[name]->contains_socket(&nc->socket()))
 	{
 	  commandVector.clear();
 	  return;
