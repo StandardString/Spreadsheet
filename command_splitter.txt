@@ -51,6 +51,9 @@ public void stuff()
 7. UNDO OK\n
    Name:name \n
    Version:version \n
+   Cell:cell\n
+   Length:length\n
+   content\n
 
 8. UNDO END\n
    Name:name \n

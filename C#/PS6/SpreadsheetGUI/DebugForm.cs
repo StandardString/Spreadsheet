@@ -14,16 +14,30 @@ namespace SS
         public delegate void Callback(bool boolean);
         private Callback cb;
 
+        /// <summary>
+        /// 
+        /// </summary>
         public DebugForm()
         {
             InitializeComponent();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Dialog_KeyDown(object sender, KeyEventArgs e)
         {
-            //
+            if (e.Control && e.KeyCode == Keys.D)
+                this.Close();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void CommandBox_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Control && e.KeyCode == Keys.D)
@@ -33,11 +47,20 @@ namespace SS
                 run(CommandBox.Text);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void DebugForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             cb(false);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="command"></param>
         private void run(string command)
         {
             if (command == "clear")
@@ -45,20 +68,52 @@ namespace SS
                 CommandBox.Clear();
                 Dialog.Clear();
             }
-            if (command == "close")
+            if (command == "exit")
                 this.Close();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="message"></param>
         public void addClientToServer(String message)
         {
             String s = "C => S  <<" + message + ">>";
-            Dialog.Invoke(new Action(() => { Dialog.Text += s + "\r\n"; }));
+            Dialog.Invoke(new Action(() =>
+            {
+                Dialog.Text += s + "\r\n";
+                Dialog.SelectionStart = Dialog.Text.Length;
+                Dialog.ScrollToCaret();
+            }));
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="message"></param>
         public void addServerToClient(String message)
         {
             String s = "S => C <<" + message + ">>";
-            Dialog.Invoke(new Action(() => { Dialog.Text += s + "\r\n"; }));
+            Dialog.Invoke(new Action(() => { 
+                Dialog.Text += s + "\r\n";
+                Dialog.SelectionStart = Dialog.Text.Length;
+                Dialog.ScrollToCaret();
+            }));
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="message"></param>
+        public void addMessage(string message)
+        {
+            String s = "Status <<" + message + ">>";
+            Dialog.Invoke(new Action(() =>
+            {
+                Dialog.Text += s + "\r\n";
+                Dialog.SelectionStart = Dialog.Text.Length;
+                Dialog.ScrollToCaret();
+            }));
         }
 
         public void setCallback(Callback callback)
