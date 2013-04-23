@@ -21,6 +21,7 @@
 #include <map>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string/predicate.hpp>
+#include <boost/thread.hpp>
 #include <fstream>
 #include <istream>
 #include <ostream>
@@ -44,6 +45,7 @@ using boost::asio::ip::tcp;
 class tcp_connection
 {
 public:
+  boost::mutex mutex;
   typedef boost::shared_ptr<tcp_connection> pointer;
 
   static pointer create(boost::asio::io_service& io_service)
@@ -67,6 +69,7 @@ private:
   }
 
   tcp::socket socket_;
+ 
  
 };
 
@@ -174,7 +177,6 @@ private:
     //It then uses the name and password to create a new spreadsheet on the server.
     if(boost::starts_with(commandVector.front(), "CREATE") && commandVector.size() == 3 )
       {
-
 	
 	//parse name
 	std::string name = commandVector[1].substr(5) + ".ss";
@@ -199,11 +201,10 @@ private:
 	    myfile << password + "\n";
 	    myfile.close();
 	  }
-    outString = "CREATE OK\nName:" + rname + "\nPassword:" + password + "\n";
-    boost::asio::async_write(nc->socket(), boost::asio::buffer(outString), boost::bind(&tcp_server::handle_write, this,  boost::asio::placeholders::error));					   						 
-    commandVector.clear();
-       
-    return;
+	outString = "CREATE OK\nName:" + rname + "\nPassword:" + password + "\n";
+	boost::asio::async_write(nc->socket(), boost::asio::buffer(outString), boost::bind(&tcp_server::handle_write, this,  boost::asio::placeholders::error));					   						 
+	commandVector.clear();
+	return;
       }
 
   //If the message begins with join, splits the message and gets the name and password.
@@ -237,7 +238,7 @@ private:
 	{
 	  outString =  "JOIN FAIL\nName:" + rname + "\nSession password was incorrect!\n";
 	  boost::asio::async_write(nc->socket(), boost::asio::buffer(outString), boost::bind(&tcp_server::handle_write, 
-													       this,  boost::asio::placeholders::error));
+											     this,  boost::asio::placeholders::error));
 	  commandVector.clear();
 	  return;
 	}
@@ -269,7 +270,11 @@ private:
 
       std::cout << outString << std::endl;
       boost::asio::async_write(nc->socket(), boost::asio::buffer(outString), boost::bind(&tcp_server::handle_write, 
-													       this,  boost::asio::placeholders::error));											
+											 this,  boost::asio::placeholders::error));			   
+
+      std::cout << "Version#: " << sessions[name]->ss->get_version() << std::endl;
+      sessions[name]->ss->increment_version();
+      std::cout << "Version#: " << sessions[name]->ss->get_version() << std::endl;
       commandVector.clear();
       return;
     }
@@ -278,9 +283,11 @@ private:
   //This information is then used to change the spreadsheet, assuming the version is correct and the content doesn't cause any problems.
   if(boost::starts_with(commandVector.front(), "CHANGE") && commandVector.size() == 6)
     {
+
       //parse name
       std::string name = commandVector[1].substr(5) + ".ss";
       std::string rname = commandVector[1].substr(5);
+
       if (sessions.find(name) == sessions.end())
 	{
 	  outString = "CHANGE FAIL\nName:" + rname + "\nSession does not exist.\n";
@@ -325,7 +332,8 @@ private:
 	    outString = "CHANGE OK\nName:" + rname + "\nVersion:" + boost::lexical_cast<std::string>(sessions[name]->ss->get_version()) + "\n";
 	    std::cout << outString << std::endl;
 	    boost::asio::async_write(nc->socket(), boost::asio::buffer(outString), boost::bind(&tcp_server::handle_write, 
-											       this,  boost::asio::placeholders::error));	
+											       this,  boost::asio::placeholders::error));
+	   
 	    commandVector.clear();
 	    return;
 	    
@@ -349,6 +357,7 @@ private:
   //The undo is thern attempted and an appropriate message is returned to the client.
   if(boost::starts_with(commandVector.front(), "UNDO") && commandVector.size() == 3)
     {
+
       //parse name
       std::string name = commandVector[1].substr(5) + ".ss";
       std::string rname = commandVector[1].substr(5);
@@ -412,8 +421,9 @@ private:
   //If the message begins with save, pulls out the name 
   if(boost::starts_with(commandVector.front(), "SAVE") && commandVector.size() == 2)
     {
+
       //parse name
-      std::string name = commandVector[1].substr(5);
+      std::string name = commandVector[1].substr(5) + ".ss";
       std::string rname = commandVector[1].substr(5);
       if (sessions.find(name) == sessions.end())
 	{
@@ -448,6 +458,7 @@ private:
   //If the message begins with leave, disconnects the user from the session.
   if(boost::starts_with(commandVector.front(), "LEAVE") && commandVector.size() == 2)
     {
+
       //parse name
       std::string name = commandVector[1].substr(5);
 	
